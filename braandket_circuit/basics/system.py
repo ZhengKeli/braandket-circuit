@@ -89,6 +89,14 @@ class QSystem(abc.ABC):
 
         return QComposed(*components)
 
+    @classmethod
+    def prod(cls, *systems: 'QSystem') -> 'QSystem':
+        if len(systems) == 0:
+            raise ValueError("No systems to compose!")
+        if len(systems) == 1:
+            return systems[0]
+        return cls.prod(systems[0] @ systems[1], *systems[2:])
+
     # str & repr
 
     def __str__(self):
