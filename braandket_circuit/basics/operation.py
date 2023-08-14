@@ -1,7 +1,7 @@
 import abc
 from typing import Optional
 
-from braandket import QSystem
+from braandket_circuit.system import QSystem
 
 
 class QOperation(abc.ABC):

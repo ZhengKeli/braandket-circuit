@@ -1,7 +1,8 @@
 import abc
 
-from braandket import OperatorTensor, QComposed, QSystem
-from braandket_circuit import QOperation
+from braandket import OperatorTensor
+from braandket_circuit.basics import QOperation
+from braandket_circuit.system import QComposed, QSystem
 
 
 class OperatorOperation(QOperation, abc.ABC):

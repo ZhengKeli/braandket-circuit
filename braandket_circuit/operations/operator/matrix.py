@@ -2,8 +2,9 @@ from typing import Optional
 
 import numpy as np
 
-from braandket import BackendValue, OperatorTensor, QComposed, QSystem
+from braandket import BackendValue, OperatorTensor
 from braandket_circuit.operations.operator.operator import OperatorOperation
+from braandket_circuit.system import QComposed, QSystem
 
 
 class MatrixOperation(OperatorOperation):

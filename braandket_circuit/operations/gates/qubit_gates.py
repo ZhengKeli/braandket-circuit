@@ -2,8 +2,8 @@ from typing import Union
 
 import numpy as np
 
-from braandket import QSystem
 from braandket_circuit.operations.operator import Identity, QubitsMatrixOperation
+from braandket_circuit.system import QSystem
 
 
 # simple single qubit gates

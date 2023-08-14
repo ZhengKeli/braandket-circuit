@@ -1,5 +1,5 @@
-from braandket import QSystem
-from braandket_circuit import QOperation
+from braandket_circuit.basics import QOperation
+from braandket_circuit.system import QSystem
 
 
 class _IdentityOperation(QOperation):
