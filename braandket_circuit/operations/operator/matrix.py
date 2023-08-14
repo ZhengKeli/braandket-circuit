@@ -1,8 +1,10 @@
+import abc
 from typing import Optional
 
 import numpy as np
 
 from braandket import BackendValue, OperatorTensor
+from braandket.backend.backend import ArrayLike
 from braandket_circuit.operations.operator.operator import OperatorOperation
 from braandket_circuit.system import QComposed, QSystem
 
@@ -10,7 +12,23 @@ from braandket_circuit.system import QComposed, QSystem
 class MatrixOperation(OperatorOperation):
     """ Operation that can be fully described by a matrix. """
 
-    def __init__(self, matrix: BackendValue, *, name: Optional[str] = None):
+    @abc.abstractmethod
+    def make_matrix(self, *systems: QSystem) -> BackendValue:
+        pass
+
+    def make_operator_tensor(self, *systems: QSystem) -> OperatorTensor:
+        matrix = self.make_matrix(*systems)
+        system = QComposed(*systems)
+        return OperatorTensor.from_matrix(matrix, system.spaces, backend=system.backend)
+
+    def __call__(self, *systems: QSystem):
+        super().__call__(*systems)
+
+
+class ConstantMatrixOperation(MatrixOperation):
+    """ MatrixOperation that has a constant matrix. """
+
+    def __init__(self, matrix: ArrayLike, *, name: Optional[str] = None):
         super().__init__(name=name)
         shape = _get_shape(matrix)
         if len(shape) != 2 or shape[0] != shape[1]:
@@ -23,18 +41,15 @@ class MatrixOperation(OperatorOperation):
         return self._N
 
     @property
-    def matrix(self) -> BackendValue:
+    def matrix(self) -> ArrayLike:
         return self._matrix
 
-    def make_operator_tensor(self, *systems: QSystem) -> OperatorTensor:
-        system = QComposed(*systems)
-        return OperatorTensor.from_matrix(self._matrix, system.spaces, backend=system.backend)
-
-    def __call__(self, *args: QSystem):
-        super().__call__(*args)
+    def make_matrix(self, *systems: QSystem) -> ArrayLike:
+        # TODO check systems shape compatible with matrix shape
+        return self.matrix
 
 
-class QubitsMatrixOperation(MatrixOperation):
+class QubitsConstantMatrixOperation(ConstantMatrixOperation):
     """ MatrixOperation that acts on qubit systems. """
 
     def __init__(self, matrix: BackendValue, *, name: Optional[str] = None):
@@ -47,9 +62,6 @@ class QubitsMatrixOperation(MatrixOperation):
     @property
     def n(self) -> int:
         return self._n
-
-    def __call__(self, *qubits: QSystem):
-        super().__call__(*qubits)
 
 
 # utils
