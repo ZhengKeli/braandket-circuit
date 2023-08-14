@@ -43,13 +43,13 @@ class Rx(_SingleQubitParameterizedGate):
     def make_matrix(self, *systems: QSystem) -> BackendValue:
         backend = QComposed(*systems).backend
         theta = backend.convert(self.theta)
-        half_theta = theta / 2
+        half_theta = backend.div(theta, 2.0)
         cos_half_theta = backend.cos(half_theta)
         sin_half_theta = backend.sin(half_theta)
-        return backend.convert([
-            [cos_half_theta * +1, sin_half_theta * -1j],
-            [sin_half_theta * -1j, cos_half_theta * +1]
-        ])
+        m1j_sin_half_theta = backend.mul(sin_half_theta, -1.0j)
+        return backend.add(
+            cos_half_theta * I.make_matrix(*systems),
+            m1j_sin_half_theta * X.make_matrix(*systems))
 
 
 class Ry(_SingleQubitParameterizedGate):
@@ -64,13 +64,13 @@ class Ry(_SingleQubitParameterizedGate):
     def make_matrix(self, *systems: QSystem) -> BackendValue:
         backend = QComposed(*systems).backend
         theta = backend.convert(self.theta)
-        half_theta = theta / 2
+        half_theta = backend.div(theta, 2.0)
         cos_half_theta = backend.cos(half_theta)
         sin_half_theta = backend.sin(half_theta)
-        return backend.convert([
-            [cos_half_theta * +1, sin_half_theta * -1],
-            [sin_half_theta * +1, cos_half_theta * +1]
-        ])
+        m1j_sin_half_theta = backend.mul(sin_half_theta, -1.0j)
+        return backend.add(
+            cos_half_theta * I.make_matrix(*systems),
+            m1j_sin_half_theta * Y.make_matrix(*systems))
 
 
 class Rz(_SingleQubitParameterizedGate):
@@ -85,8 +85,10 @@ class Rz(_SingleQubitParameterizedGate):
     def make_matrix(self, *systems: QSystem) -> BackendValue:
         backend = QComposed(*systems).backend
         theta = backend.convert(self.theta)
-        half_theta_j = theta / 2 * 1j
-        return np.asarray([
-            [np.exp(-half_theta_j), 0],
-            [0, np.exp(+half_theta_j)]
-        ])
+        half_theta = backend.div(theta, 2.0)
+        cos_half_theta = backend.cos(half_theta)
+        sin_half_theta = backend.sin(half_theta)
+        m1j_sin_half_theta = backend.mul(sin_half_theta, -1.0j)
+        return backend.add(
+            cos_half_theta * I.make_matrix(*systems),
+            m1j_sin_half_theta * Z.make_matrix(*systems))
