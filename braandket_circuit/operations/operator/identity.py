@@ -2,7 +2,7 @@ import numpy as np
 
 import braandket as bnk
 from braandket import BackendValue, OperatorTensor
-from braandket_circuit.system import QComposed, QSystem
+from braandket_circuit.basics import QComposed, QSystem
 from .matrix import MatrixOperation
 
 

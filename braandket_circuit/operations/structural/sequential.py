@@ -1,7 +1,6 @@
 from typing import Generic, Iterable, Optional, TypeVar
 
-from braandket_circuit.basics import QOperation
-from braandket_circuit.system import QSystem
+from braandket_circuit.basics import QOperation, QSystem
 
 Op = TypeVar('Op', bound=QOperation)
 

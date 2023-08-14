@@ -3,8 +3,8 @@ import abc
 import numpy as np
 
 from braandket import ArrayLike, BackendValue
+from braandket_circuit.basics import QComposed, QSystem
 from braandket_circuit.operations.operator import Identity, MatrixOperation, QubitsConstantMatrixOperation
-from braandket_circuit.system import QComposed, QSystem
 
 
 # simple single qubit gates
