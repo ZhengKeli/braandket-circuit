@@ -2,13 +2,13 @@
 
 [[package]]
 name = "braandket"
-version = "0.8.4"
+version = "0.8.5"
 description = "BraAndKet is a library for numeral calculations of discrete quantum systems."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "BraAndKet-0.8.4-py3-none-any.whl", hash = "sha256:420620a78f91d2bc34a1a78c1fdc0b1a15b3d8bff2a751a172a33d0e8606cff9"},
-    {file = "BraAndKet-0.8.4.tar.gz", hash = "sha256:0d28b24a34c88a82aae79af0c73fadc926e33aa6efb378b2c68cb1cbe286cf92"},
+    {file = "BraAndKet-0.8.5-py3-none-any.whl", hash = "sha256:9aaee35e17fc586221145a76ba362d3b7c951ef0309e17a8262210b3ea6afb4d"},
+    {file = "BraAndKet-0.8.5.tar.gz", hash = "sha256:cbca4469661ff7f7eba024231435e7798f5503766fc61fc6efb0f0b6117e9df5"},
 ]
 
 [package.dependencies]
@@ -57,4 +57,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "9c6103896a418038e0baf12e83b90c964deb356deaf1310b972aeb7cd999f18a"
+content-hash = "cc37f343c9af5a18b6674762132b36e3bb8a1a80968865bcaace472ca73a3f10"

@@ -12,4 +12,4 @@ packages = [{ include = "braandket_circuit" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-braandket = "^0.8.3"
+braandket = "^0.8.5"
