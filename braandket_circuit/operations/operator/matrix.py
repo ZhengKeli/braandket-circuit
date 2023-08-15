@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 
 from braandket import ArrayLike, BackendValue, OperatorTensor
-from braandket_circuit.basics import QComposed, QSystem
+from braandket_circuit.basics import QComposed, QSystemStruct
 from .operator import OperatorOperation
 
 
@@ -12,16 +12,16 @@ class MatrixOperation(OperatorOperation):
     """ Operation that can be fully described by a matrix. """
 
     @abc.abstractmethod
-    def make_matrix(self, *systems: QSystem) -> BackendValue:
+    def make_matrix(self, *args: QSystemStruct) -> BackendValue:
         pass
 
-    def make_operator_tensor(self, *systems: QSystem) -> OperatorTensor:
-        matrix = self.make_matrix(*systems)
-        system = QComposed(*systems)
+    def make_operator_tensor(self, *args: QSystemStruct) -> OperatorTensor:
+        matrix = self.make_matrix(*args)
+        system = QComposed(*args)
         return OperatorTensor.from_matrix(matrix, system.spaces, backend=system.backend)
 
-    def __call__(self, *systems: QSystem):
-        return super().__call__(*systems)
+    def __call__(self, *args: QSystemStruct):
+        return super().__call__(*args)
 
 
 class ConstantMatrixOperation(MatrixOperation):
@@ -43,7 +43,7 @@ class ConstantMatrixOperation(MatrixOperation):
     def matrix(self) -> ArrayLike:
         return self._matrix
 
-    def make_matrix(self, *systems: QSystem) -> ArrayLike:
+    def make_matrix(self, *args: QSystemStruct) -> ArrayLike:
         # TODO check systems shape compatible with matrix shape
         return self.matrix
 

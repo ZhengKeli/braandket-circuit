@@ -1,7 +1,7 @@
 import abc
 from typing import Generic, Optional, TypeVar
 
-from .system import QSystem
+from .system import QSystemStruct
 
 R = TypeVar('R')
 
@@ -15,5 +15,5 @@ class QOperation(Generic[R], abc.ABC):
         return self._name
 
     @abc.abstractmethod
-    def __call__(self, *args: QSystem) -> R:
+    def __call__(self, *args: QSystemStruct) -> R:
         pass

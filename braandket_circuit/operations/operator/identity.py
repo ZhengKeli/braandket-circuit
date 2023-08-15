@@ -2,24 +2,24 @@ import numpy as np
 
 import braandket as bnk
 from braandket import BackendValue, OperatorTensor
-from braandket_circuit.basics import QComposed, QSystem
+from braandket_circuit.basics import QSystemStruct, compose
 from .matrix import MatrixOperation
 
 
 class _IdentityOperation(MatrixOperation):
     """ Operation that does nothing """
 
-    def make_matrix(self, *systems: QSystem) -> BackendValue:
-        system = QComposed(*systems)
+    def make_matrix(self, *args: QSystemStruct) -> BackendValue:
+        system = compose(*args)
         N = int(np.prod([space.n for space in system.spaces]))
         return system.backend.eye(N)
 
-    def make_operator_tensor(self, *systems: QSystem) -> OperatorTensor:
-        system = QComposed(*systems)
+    def make_operator_tensor(self, *args: QSystemStruct) -> OperatorTensor:
+        system = compose(*args)
         spaces_identity = [space.identity(backend=system.backend) for space in system.spaces]
         return OperatorTensor.of(bnk.prod(*spaces_identity, backend=system.backend))
 
-    def __call__(self, *args: QSystem):
+    def __call__(self, *args: QSystemStruct):
         pass
 
 
