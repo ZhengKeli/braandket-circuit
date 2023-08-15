@@ -1,6 +1,6 @@
 import abc
 import weakref
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 
 from braandket import Backend, KetSpace, PureStateTensor, StateTensor
 
@@ -162,3 +162,19 @@ class QComposed(QSystem, Iterable[QSystem]):
 
     def __getitem__(self, item):
         return self._components[item]
+
+
+# struct
+
+QSystemStruct = Union[QSystem, Iterable['QSystemStruct']]
+
+
+def compose(*systems: QSystemStruct) -> QSystem:
+    if len(systems) == 0:
+        return QComposed()
+    if len(systems) > 1:
+        return compose(systems)
+    system = systems[0]
+    if isinstance(system, QSystem):
+        return system
+    return QComposed(*[compose(subsystem) for subsystem in system])
