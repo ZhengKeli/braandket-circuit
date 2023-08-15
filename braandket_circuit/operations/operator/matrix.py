@@ -21,7 +21,7 @@ class MatrixOperation(OperatorOperation):
         return OperatorTensor.from_matrix(matrix, system.spaces, backend=system.backend)
 
     def __call__(self, *systems: QSystem):
-        super().__call__(*systems)
+        return super().__call__(*systems)
 
 
 class ConstantMatrixOperation(MatrixOperation):

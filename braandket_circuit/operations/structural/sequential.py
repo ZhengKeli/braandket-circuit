@@ -5,7 +5,7 @@ from braandket_circuit.basics import QOperation, QSystem
 Op = TypeVar('Op', bound=QOperation)
 
 
-class Sequential(QOperation, Generic[Op]):
+class Sequential(Generic[Op], QOperation[tuple]):
     def __init__(self, steps: Iterable[Op], *, name: Optional[str] = None):
         super().__init__(name=name)
 
@@ -21,6 +21,8 @@ class Sequential(QOperation, Generic[Op]):
     def steps(self) -> tuple[Op, ...]:
         return self._steps
 
-    def __call__(self, *args: QSystem):
+    def __call__(self, *args: QSystem) -> tuple:
+        results = []
         for step in self.steps:
-            step(*args)
+            results.append(step(*args))
+        return tuple(results)

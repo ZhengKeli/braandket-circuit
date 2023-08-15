@@ -11,7 +11,7 @@ from braandket_circuit.operations.operator import Identity, MatrixOperation, Qub
 
 class _SingleQubitConstantGate(QubitsConstantMatrixOperation):
     def __call__(self, qubit: QSystem):
-        super().__call__(qubit)
+        return super().__call__(qubit)
 
 
 I = Identity
@@ -28,7 +28,7 @@ NOT = X
 
 class _SingleQubitParameterizedGate(MatrixOperation, abc.ABC):
     def __call__(self, qubit: QSystem):
-        super().__call__(qubit)
+        return super().__call__(qubit)
 
 
 class Rx(_SingleQubitParameterizedGate):

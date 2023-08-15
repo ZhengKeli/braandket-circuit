@@ -1,10 +1,12 @@
 import abc
-from typing import Optional
+from typing import Generic, Optional, TypeVar
 
 from .system import QSystem
 
+R = TypeVar('R')
 
-class QOperation(abc.ABC):
+
+class QOperation(Generic[R], abc.ABC):
     def __init__(self, *, name: Optional[str] = None):
         self._name = name
 
@@ -13,5 +15,5 @@ class QOperation(abc.ABC):
         return self._name
 
     @abc.abstractmethod
-    def __call__(self, *args: QSystem):
+    def __call__(self, *args: QSystem) -> R:
         pass

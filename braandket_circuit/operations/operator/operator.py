@@ -4,7 +4,7 @@ from braandket import OperatorTensor
 from braandket_circuit.basics import QComposed, QOperation, QSystem
 
 
-class OperatorOperation(QOperation, abc.ABC):
+class OperatorOperation(QOperation[None], abc.ABC):
     """ Operation that can be fully described by an operator. """
 
     @abc.abstractmethod
