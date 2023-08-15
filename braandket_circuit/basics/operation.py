@@ -13,5 +13,5 @@ class QOperation(abc.ABC):
         return self._name
 
     @abc.abstractmethod
-    def __call__(self, *args: QSystem, **kwargs: QSystem):
+    def __call__(self, *args: QSystem):
         pass

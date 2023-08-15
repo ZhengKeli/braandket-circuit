@@ -21,6 +21,6 @@ class Sequential(QOperation, Generic[Op]):
     def steps(self) -> tuple[Op, ...]:
         return self._steps
 
-    def __call__(self, *args: QSystem, **kwargs: QSystem):
+    def __call__(self, *args: QSystem):
         for step in self.steps:
-            step(*args, **kwargs)
+            step(*args)

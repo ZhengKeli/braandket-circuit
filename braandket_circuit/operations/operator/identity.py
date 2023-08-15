@@ -19,7 +19,7 @@ class _IdentityOperation(MatrixOperation):
         spaces_identity = [space.identity(backend=system.backend) for space in system.spaces]
         return OperatorTensor.of(bnk.prod(*spaces_identity, backend=system.backend))
 
-    def __call__(self, *args: QSystem, **kwargs: QSystem):
+    def __call__(self, *args: QSystem):
         pass
 
 
