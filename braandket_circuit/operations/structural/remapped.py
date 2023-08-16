@@ -32,7 +32,3 @@ class Remapped(QOperation, Generic[Op], abc.ABC):
         if isinstance(mapped_args, QSystem):
             mapped_args = (mapped_args,)
         return self.op(*mapped_args)
-
-
-def remap_by_indices(op: Op, *indices: int) -> Remapped:
-    return Remapped(op, lambda *args: tuple(args[i] for i in indices))

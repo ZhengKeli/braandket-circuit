@@ -1,9 +1,8 @@
-from typing import Generic, Iterable, Optional, TypeVar, Union
+from typing import Generic, Optional, TypeVar
 
 import braandket as bnk
 from braandket import MixedStateTensor, PureStateTensor
 from braandket_circuit.basics import QOperation, QSystem, QSystemStruct, compose
-from .remapped import Remapped
 
 Op = TypeVar("Op", bound=QOperation)
 
@@ -41,18 +40,3 @@ class Controlled(Generic[Op], QOperation[None]):
                 control_projector_on @ total_state_on @ control_projector_on,
                 control_projector_off @ total_state_off @ control_projector_off
             ))
-
-
-def control_by_indices(
-    op: Op,
-    control: Union[int, Iterable[int]],
-    target: Union[int, Iterable[int]],
-) -> Remapped[Controlled[Op]]:
-    def mapper(*args: QSystemStruct):
-        control_arg = args[control] if isinstance(control, int) \
-            else tuple(args[i] for i in control)
-        target_arg = args[target] if isinstance(target, int) \
-            else tuple(args[i] for i in target)
-        return control_arg, target_arg
-
-    return Remapped(Controlled(op), mapper)
