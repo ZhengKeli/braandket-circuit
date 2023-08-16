@@ -135,7 +135,7 @@ class QComposed(QSystem, Iterable[QSystem]):
     def __init__(self, *components: QSystem, name: Optional[str] = None):
         self._name = name
         self._components = components
-        self._state = QState.prod(*(system.state for system in components))
+        self._state = QState.prod(*(component.state for component in components))
 
     # system
 
