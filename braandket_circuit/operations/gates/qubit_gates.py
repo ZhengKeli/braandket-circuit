@@ -27,19 +27,25 @@ NOT = X
 
 # parametrized single qubit gates
 
-class _SingleQubitParameterizedGate(MatrixOperation, abc.ABC):
-    def __call__(self, qubit: QParticle):
-        return super().__call__(qubit)
-
-
-class Rx(_SingleQubitParameterizedGate):
-    def __init__(self, theta: ArrayLike):
-        super().__init__(name="Rx")
+class _SingleQubitRotationGate(MatrixOperation, abc.ABC):
+    def __init__(self, theta: ArrayLike, *, name: str):
+        super().__init__(name=name)
         self._theta = theta
 
     @property
     def theta(self) -> ArrayLike:
         return self._theta
+
+    def __call__(self, qubit: QParticle):
+        return super().__call__(qubit)
+
+    def __repr__(self) -> str:
+        return f'{self.name}({self.theta})'
+
+
+class Rx(_SingleQubitRotationGate):
+    def __init__(self, theta: ArrayLike):
+        super().__init__(theta, name="Rx")
 
     def make_matrix(self, qubit: QParticle) -> BackendValue:
         backend = qubit.backend
@@ -53,14 +59,9 @@ class Rx(_SingleQubitParameterizedGate):
             m1j_sin_half_theta * X.make_matrix(qubit))
 
 
-class Ry(_SingleQubitParameterizedGate):
+class Ry(_SingleQubitRotationGate):
     def __init__(self, theta: ArrayLike):
-        self._theta = theta
-        super().__init__(name="Ry")
-
-    @property
-    def theta(self) -> ArrayLike:
-        return self._theta
+        super().__init__(theta, name="Ry")
 
     def make_matrix(self, qubit: QParticle) -> BackendValue:
         backend = qubit.backend
@@ -74,14 +75,9 @@ class Ry(_SingleQubitParameterizedGate):
             m1j_sin_half_theta * Y.make_matrix(qubit))
 
 
-class Rz(_SingleQubitParameterizedGate):
+class Rz(_SingleQubitRotationGate):
     def __init__(self, theta: ArrayLike):
-        self._theta = theta
-        super().__init__(name="Rz")
-
-    @property
-    def theta(self) -> ArrayLike:
-        return self._theta
+        super().__init__(theta, name="Rz")
 
     def make_matrix(self, qubit: QParticle) -> BackendValue:
         backend = QComposed(qubit).backend
