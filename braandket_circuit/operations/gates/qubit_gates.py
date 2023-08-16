@@ -5,6 +5,7 @@ import numpy as np
 from braandket import ArrayLike, BackendValue
 from braandket_circuit.basics import QComposed, QParticle
 from braandket_circuit.operations.operator import Identity, MatrixOperation, QubitsConstantMatrixOperation
+from braandket_circuit.operations.structural import Controlled
 
 
 # simple single qubit gates
@@ -92,3 +93,11 @@ class Rz(_SingleQubitParameterizedGate):
         return backend.add(
             cos_half_theta * I.make_matrix(qubit),
             m1j_sin_half_theta * Z.make_matrix(qubit))
+
+
+# controlled gates
+
+CX = Controlled(X)
+CY = Controlled(Y)
+CZ = Controlled(Z)
+CNOT = CX
