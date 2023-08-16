@@ -107,7 +107,9 @@ class QSystem(abc.ABC):
 
 
 class QParticle(QSystem):
-    def __init__(self, space: KetSpace, state_tensor: StateTensor):
+    def __init__(self, space: KetSpace, state_tensor: Optional[StateTensor] = None):
+        if state_tensor is None:
+            state_tensor = space.eigenstate(0)
         if space not in state_tensor.spaces:
             raise ValueError(f"Space {space} not included in the given state tensor!")
         self._space = space
