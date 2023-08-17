@@ -1,10 +1,12 @@
 import abc
-from typing import Callable, Generic, Optional, ParamSpec, TypeVar
+from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union
 
 from braandket_circuit.basics import QOperation, QSystem, QSystemStruct
+from braandket_circuit.utils.struct import freeze_struct, map_struct
 
 Op = TypeVar('Op', bound=QOperation)
 QSystemSpec = ParamSpec('QSystemSpec', bound=QSystemStruct)
+IndexStruct = Union[int, Iterable['IndexStruct']]
 
 
 class Remapped(QOperation, Generic[Op], abc.ABC):
@@ -48,16 +50,16 @@ class RemappedByLambda(Remapped[Op]):
 
 
 class RemappedByIndices(Remapped[Op]):
-    def __init__(self, op: Op, *indices: int, name: Optional[str] = None):
+    def __init__(self, op: Op, *indices: IndexStruct, name: Optional[str] = None):
         super().__init__(op, name=name)
-        self._indices = indices
+        self._indices = freeze_struct(indices, atom_typ=int)
 
     @property
-    def indices(self) -> tuple[int, ...]:
+    def indices(self) -> IndexStruct:
         return self._indices
 
     def remap(self, *args: QSystemStruct) -> QSystemStruct:
-        return tuple(args[i] for i in self._indices)
+        return map_struct(lambda i: args[i], self._indices, atom_typ=int)
 
     def __repr__(self) -> str:
         return f"RemappedByIndices({self.op}, {', '.join(map(str, self._indices))})"
