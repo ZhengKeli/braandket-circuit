@@ -26,3 +26,9 @@ class Sequential(Generic[Op], QOperation[tuple]):
         for step in self.steps:
             results.append(step(*args))
         return tuple(results)
+
+    def __repr__(self) -> str:
+        s = f"Sequential(["
+        for step in self.steps:
+            s += f"\n\t" + repr(step).replace("\n", "\n\t") + ","
+        return s + "\n])"

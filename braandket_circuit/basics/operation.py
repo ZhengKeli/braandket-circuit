@@ -17,3 +17,7 @@ class QOperation(Generic[R], abc.ABC):
     @abc.abstractmethod
     def __call__(self, *args: QSystemStruct) -> R:
         pass
+
+    def __repr__(self):
+        name_str = f" name={self.name}" if self.name else ""
+        return f"<{type(self).__name__}{name_str}>"

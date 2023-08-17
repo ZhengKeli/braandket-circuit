@@ -14,6 +14,9 @@ class _SingleQubitConstantGate(QubitsConstantMatrixOperation):
     def __call__(self, qubit: QParticle):
         return super().__call__(qubit)
 
+    def __repr__(self):
+        return f"{self.name}"
+
 
 I = Identity
 X = _SingleQubitConstantGate(np.asarray([[0, 1], [1, 0]]), name="X")
