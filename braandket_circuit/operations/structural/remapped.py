@@ -1,5 +1,5 @@
 import abc
-from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union
+from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
 
 from braandket_circuit.basics import QOperation, QSystem, QSystemStruct
 from braandket_circuit.utils.struct import freeze_struct, map_struct
@@ -63,3 +63,20 @@ class RemappedByIndices(Remapped[Op]):
 
     def __repr__(self) -> str:
         return f"RemappedByIndices({self.op}, {', '.join(map(str, self._indices))})"
+
+
+@overload
+def remap(op: Op, func: Callable[QSystemSpec, QSystemStruct], *, name: Optional[str] = None) -> RemappedByLambda[Op]:
+    return RemappedByLambda(op, func, name=name)
+
+
+@overload
+def remap(op: Op, *indices: IndexStruct, name: Optional[str] = None) -> RemappedByIndices[Op]:
+    return RemappedByIndices(op, *indices, name=name)
+
+
+def remap(op: Op, *args, name: Optional[str] = None) -> Remapped[Op]:
+    if len(args) == 1 and callable(args[0]):
+        return RemappedByLambda(op, args[0], name=name)
+    else:
+        return RemappedByIndices(op, *args, name=name)

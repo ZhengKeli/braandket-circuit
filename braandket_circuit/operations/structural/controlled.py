@@ -1,10 +1,12 @@
-from typing import Generic, Optional, TypeVar
+from typing import Callable, Generic, Optional, ParamSpec, TypeVar, overload
 
 import braandket as bnk
 from braandket import MixedStateTensor, PureStateTensor
 from braandket_circuit.basics import QOperation, QSystem, QSystemStruct, compose
+from .remapped import IndexStruct, remap
 
 Op = TypeVar("Op", bound=QOperation)
+QSystemSpec = ParamSpec('QSystemSpec', bound=QSystemStruct)
 
 
 class Controlled(Generic[Op], QOperation[None]):
@@ -40,3 +42,20 @@ class Controlled(Generic[Op], QOperation[None]):
                 control_projector_on @ total_state_on @ control_projector_on,
                 control_projector_off @ total_state_off @ control_projector_off
             ))
+
+
+@overload
+def control(op: Op, control: Callable[QSystemSpec, QSystemStruct], target: Callable[QSystemSpec, QSystemStruct]):
+    pass
+
+
+@overload
+def control(op: Op, control: IndexStruct, target: IndexStruct):
+    pass
+
+
+def control(op: Op, control, target):
+    if callable(control) and callable(target):
+        return remap(Controlled(op), lambda *args: (control(*args), target(*args)))
+    else:
+        return remap(Controlled(op), control, target)
