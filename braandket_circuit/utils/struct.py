@@ -7,8 +7,10 @@ Struct = Union[Atom, Iterable['Struct']]
 def iter_struct(
     struct: Struct, *,
     atom_typ: Union[type, Iterable[type]] = (),
-    strict: bool = False,
+    strict: bool = None,
 ) -> Iterable[Atom]:
+    if strict is None:
+        strict = bool(atom_typ)
     atom_typ = atom_typ if isinstance(atom_typ, type) else tuple(atom_typ)
     if isinstance(struct, atom_typ):
         yield struct
@@ -25,8 +27,10 @@ def iter_struct(
 def freeze_struct(
     struct: Struct, *,
     atom_typ: Union[type, Iterable[type]] = (),
-    strict: bool = False,
+    strict: bool = None,
 ) -> Union[Atom, tuple]:
+    if strict is None:
+        strict = bool(atom_typ)
     atom_typ = atom_typ if isinstance(atom_typ, type) else tuple(atom_typ)
     if isinstance(struct, atom_typ):
         return struct
@@ -43,8 +47,10 @@ def map_struct(
     func: Callable,
     struct: Struct, *,
     atom_typ: Union[type, Iterable[type]] = (),
-    strict: bool = False,
+    strict: bool = None,
 ) -> Union[Atom, tuple]:
+    if strict is None:
+        strict = bool(atom_typ)
     atom_typ = atom_typ if isinstance(atom_typ, type) else tuple(atom_typ)
     if isinstance(struct, atom_typ):
         return func(struct)
