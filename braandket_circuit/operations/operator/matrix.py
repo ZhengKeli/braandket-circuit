@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 
 from braandket import ArrayLike, BackendValue, OperatorTensor
-from braandket_circuit.basics import QComposed, QSystemStruct
+from braandket_circuit.basics import QSystem, QSystemStruct
 from .operator import OperatorOperation
 
 
@@ -17,7 +17,7 @@ class MatrixOperation(OperatorOperation):
 
     def make_operator_tensor(self, *args: QSystemStruct) -> OperatorTensor:
         matrix = self.make_matrix(*args)
-        system = QComposed(*args)
+        system = QSystem.of(args)
         return OperatorTensor.from_matrix(matrix, system.spaces, backend=system.backend)
 
     def __call__(self, *args: QSystemStruct):

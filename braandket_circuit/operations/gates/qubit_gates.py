@@ -3,7 +3,7 @@ import abc
 import numpy as np
 
 from braandket import ArrayLike, BackendValue
-from braandket_circuit.basics import QComposed, QParticle
+from braandket_circuit.basics import QParticle
 from braandket_circuit.operations.operator import Identity, MatrixOperation, QubitsConstantMatrixOperation
 from braandket_circuit.operations.structural import Controlled
 
@@ -83,7 +83,7 @@ class Rz(_SingleQubitRotationGate):
         super().__init__(theta, name="Rz")
 
     def make_matrix(self, qubit: QParticle) -> BackendValue:
-        backend = QComposed(qubit).backend
+        backend = qubit.backend
         theta = backend.convert(self.theta)
         half_theta = backend.div(theta, 2.0)
         cos_half_theta = backend.cos(half_theta)

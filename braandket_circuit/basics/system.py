@@ -1,6 +1,6 @@
 import abc
 import weakref
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Union, overload
 
 from braandket import Backend, KetSpace, PureStateTensor, StateTensor
 
@@ -8,12 +8,16 @@ from braandket import Backend, KetSpace, PureStateTensor, StateTensor
 # state
 
 class QState:
-    def __init__(self, tensor: StateTensor, related_systems: Iterable['QSystem'] = ()):
+    def __init__(self, tensor: StateTensor, systems: Iterable['QSystem'] = ()):
         self._tensor = tensor
-        self._related_systems = weakref.WeakSet(related_systems)
-        for system in self._related_systems:
-            # noinspection PyProtectedMember
-            system._set_state(self)
+        self._particles = weakref.WeakSet()
+        self._register(*systems)
+
+    def _register(self, *systems: 'QSystem'):
+        for system in systems:
+            for particle in system.particles:
+                particle._state = self
+                self._particles.add(particle)
 
     @property
     def tensor(self) -> StateTensor:
@@ -27,15 +31,12 @@ class QState:
     def backend(self) -> Backend:
         return self.tensor.backend
 
-    def _add_related_system(self, system: 'QSystem'):
-        self._related_systems.add(system)
-
     def __matmul__(self, other: 'QState') -> 'QState':
         if other is self:
             return self
         new_tensor = self._tensor @ other._tensor
-        new_related_systems = (*self._related_systems, *other._related_systems)
-        return QState(new_tensor, new_related_systems)
+        new_particles = (*self._particles, *other._particles)
+        return QState(new_tensor, new_particles)
 
     @classmethod
     def prod(cls, *states: 'QState') -> 'QState':
@@ -48,7 +49,35 @@ class QState:
 
 # system
 
+QSystemStruct = Union['QSystem', Iterable['QSystemStruct']]
+
+
 class QSystem(abc.ABC):
+    @classmethod
+    @overload
+    def of(cls, systems: QSystemStruct) -> 'QSystem':
+        pass
+
+    @classmethod
+    @overload
+    def of(cls, state_tensor: StateTensor) -> 'QSystem':
+        pass
+
+    @classmethod
+    def of(cls, arg: Union[QSystemStruct, StateTensor]) -> 'QSystem':
+        if isinstance(arg, QSystem):
+            return arg
+        if isinstance(arg, StateTensor):
+            return cls._from_state_tensor(arg)
+        if isinstance(arg, Iterable):
+            return QComposed(QSystem.of(item) for item in arg)
+        raise TypeError(f"Expected QSystemStruct or StateTensor, got {arg}!")
+
+    @classmethod
+    def _from_state_tensor(cls, state_tensor: StateTensor) -> 'QSystem':
+        state = QState(state_tensor)
+        return QSystem.of([QParticle(space, state) for space in state_tensor.ket_spaces])
+
     @property
     @abc.abstractmethod
     def name(self) -> Optional[str]:
@@ -56,16 +85,16 @@ class QSystem(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def spaces(self) -> tuple[KetSpace, ...]:
+    def particles(self) -> tuple['QParticle', ...]:
         pass
+
+    @property
+    def spaces(self) -> tuple[KetSpace, ...]:
+        return tuple(particle.space for particle in self.particles)
 
     @property
     @abc.abstractmethod
     def state(self) -> QState:
-        pass
-
-    @abc.abstractmethod
-    def _set_state(self, state: QState):
         pass
 
     @property
@@ -87,7 +116,7 @@ class QSystem(abc.ABC):
         else:
             components.append(other)
 
-        return QComposed(*components)
+        return QComposed(components)
 
     @classmethod
     def prod(cls, *systems: 'QSystem') -> 'QSystem':
@@ -107,35 +136,57 @@ class QSystem(abc.ABC):
 
 
 class QParticle(QSystem):
-    def __init__(self, space: KetSpace, state_tensor: Optional[StateTensor] = None):
-        if state_tensor is None:
-            state_tensor = space.eigenstate(0)
-        if space not in state_tensor.spaces:
-            raise ValueError(f"Space {space} not included in the given state tensor!")
+    def __init__(self, space: KetSpace, state: Union[QState, StateTensor, None] = None):
         self._space = space
-        self._state = QState(state_tensor, (self,))
+        self._state: Optional[QState] = None
+
+        if isinstance(state, QState):
+            if space not in state.tensor.spaces:
+                raise ValueError(f"Space {space} not included in the given state tensor!")
+            state._register(self)
+        elif isinstance(state, StateTensor):
+            if space not in state.spaces:
+                raise ValueError(f"Space {space} not included in the given state tensor!")
+            QState(state, (self,))
+        elif state is not None:
+            raise TypeError(f"Expected QState or StateTensor, got {state}!")
+
+    @property
+    def space(self) -> KetSpace:
+        return self._space
+
+    # system
 
     @property
     def name(self) -> Optional[str]:
-        return self._space.name
+        return self.space.name
 
     @property
-    def spaces(self) -> Iterable[KetSpace]:
-        return (self._space,)
+    def particles(self) -> tuple['QParticle', ...]:
+        return self,
 
     @property
     def state(self) -> QState:
+        if self._state is None:
+            QState(self.space.eigenstate(0), (self,))
         return self._state
 
-    def _set_state(self, state: QState):
-        self._state = state
+    # hash & eq
+
+    def __eq__(self, other):
+        if not isinstance(other, QParticle):
+            return False
+        return self.space == other.space and self.state == other.state
+
+    def __hash__(self):
+        return hash((id(self.space), id(self.state)))
 
 
 class QComposed(QSystem, Iterable[QSystem]):
-    def __init__(self, *components: QSystem, name: Optional[str] = None):
+    def __init__(self, components: Iterable[QSystem], *, name: Optional[str] = None):
         self._name = name
-        self._components = components
-        self._state = QState.prod(*(component.state for component in components))
+        self._components = tuple(components)
+        self._composed = False
 
     # system
 
@@ -144,15 +195,20 @@ class QComposed(QSystem, Iterable[QSystem]):
         return self._name
 
     @property
-    def spaces(self) -> tuple[KetSpace, ...]:
-        return tuple(space for comp in self for space in comp.spaces)
+    def particles(self) -> tuple['QParticle', ...]:
+        return tuple(particle for component in self for particle in component.particles)
 
     @property
     def state(self) -> QState:
-        return self._state
+        particles = self.particles
+        if not particles:
+            return QState(PureStateTensor.of((), ()))
 
-    def _set_state(self, state: QState):
-        self._state = state
+        if not self._composed:
+            self._composed = True
+            QState.prod(*(component.state for component in self))
+
+        return particles[0].state
 
     # components
 
@@ -164,19 +220,3 @@ class QComposed(QSystem, Iterable[QSystem]):
 
     def __getitem__(self, item):
         return self._components[item]
-
-
-# struct
-
-QSystemStruct = Union[QSystem, Iterable['QSystemStruct']]
-
-
-def compose(*systems: QSystemStruct) -> QSystem:
-    if len(systems) == 0:
-        return QComposed()
-    if len(systems) > 1:
-        return compose(systems)
-    system = systems[0]
-    if isinstance(system, QSystem):
-        return system
-    return QComposed(*[compose(subsystem) for subsystem in system])

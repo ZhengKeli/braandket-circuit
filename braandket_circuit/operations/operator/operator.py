@@ -1,7 +1,7 @@
 import abc
 
 from braandket import OperatorTensor
-from braandket_circuit.basics import QOperation, QSystemStruct, compose
+from braandket_circuit.basics import QOperation, QSystem, QSystemStruct
 
 
 class OperatorOperation(QOperation[None], abc.ABC):
@@ -12,6 +12,6 @@ class OperatorOperation(QOperation[None], abc.ABC):
         pass
 
     def __call__(self, *args: QSystemStruct):
-        state = compose(*args).state
         operator = self.make_operator_tensor(*args)
+        state = QSystem.of(args).state
         state.tensor = operator @ state.tensor

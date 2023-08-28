@@ -2,7 +2,7 @@ from typing import Callable, Generic, Optional, ParamSpec, TypeVar, overload
 
 import braandket as bnk
 from braandket import MixedStateTensor, PureStateTensor
-from braandket_circuit.basics import QOperation, QSystem, QSystemStruct, compose
+from braandket_circuit.basics import QOperation, QSystem, QSystemStruct
 from .remapped import IndexStruct, remap
 
 Op = TypeVar("Op", bound=QOperation)
@@ -19,12 +19,12 @@ class Controlled(Generic[Op], QOperation[None]):
         return self._op
 
     def __call__(self, control: QSystemStruct, target: QSystemStruct):
-        control_system = compose(control)
+        control_system = QSystem.of(control)
         control_identity = bnk.prod(*(sp.identity() for sp in control_system.spaces))
         control_projector_on = bnk.prod(*(sp.projector(1) for sp in control_system.spaces))
         control_projector_off = control_identity - control_projector_on
 
-        total_system = compose(control, target)
+        total_system = QSystem.of([control, target])
         total_state_off = total_system.state.tensor
         target = (target,) if isinstance(target, QSystem) else target
         self.op(*target)
