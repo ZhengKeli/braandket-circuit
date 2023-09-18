@@ -4,7 +4,8 @@ import numpy as np
 
 from braandket import ArrayLike, BackendValue
 from braandket_circuit.basics import QParticle
-from braandket_circuit.operations.operator import Identity, MatrixOperation, QubitsConstantMatrixOperation
+from braandket_circuit.operations.identity import Identity
+from braandket_circuit.operations.operator import MatrixOperation, QubitsConstantMatrixOperation
 from braandket_circuit.operations.structural import Controlled
 
 
