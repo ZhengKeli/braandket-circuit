@@ -16,20 +16,22 @@ class QRuntime(abc.ABC):
         return apply(self, op, *args)
 
     def __enter__(self):
-        token = _default_runtime.set(self)
+        token = _runtime_context_var.set(self)
         setattr(self, '_org_default_runtime_token_', token)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         token = getattr(self, '_org_default_runtime_token_')
-        _default_runtime.reset(token)
+        _runtime_context_var.reset(token)
 
 
-_default_runtime = ContextVar[Optional[QRuntime]]('default_runtime', default=None)
+_runtime_context_var = ContextVar[Optional[QRuntime]]('runtime', default=None)
 
 
-def get_default_runtime() -> QRuntime:
-    runtime = _default_runtime.get()
+def get_runtime() -> QRuntime:
+    runtime = _runtime_context_var.get()
     if runtime is None:
-        raise NotImplementedError  # TODO init default runtime
+        from braandket_circuit.runtimes import make_default_runtime
+        runtime = make_default_runtime()
+        _runtime_context_var.set(runtime)
     return runtime
