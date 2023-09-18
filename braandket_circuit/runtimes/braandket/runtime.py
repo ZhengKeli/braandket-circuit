@@ -1,3 +1,4 @@
+import importlib
 import weakref
 from typing import Optional, Union
 
@@ -102,3 +103,6 @@ class BnkParticle(QParticle):
 
     def __hash__(self):
         return hash((id(self.space), id(self.state)))
+
+
+importlib.import_module(".impls", __package__)
