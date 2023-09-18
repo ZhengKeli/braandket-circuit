@@ -14,9 +14,9 @@ class QOperation(Generic[R], abc.ABC):
     def name(self) -> Optional[str]:
         return self._name
 
-    @abc.abstractmethod
     def __call__(self, *args: QSystemStruct) -> R:
-        pass
+        from .runtime import get_default_runtime
+        return get_default_runtime().operate(self, *args)
 
     def __repr__(self):
         name_str = f" name={self.name}" if self.name else ""
