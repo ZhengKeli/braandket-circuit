@@ -1,17 +1,18 @@
 import abc
 
-import numpy as np
-
-from braandket import ArrayLike, BackendValue
-from braandket_circuit.basics import QParticle
+from braandket import ArrayLike
+from braandket_circuit.basics import QOperation, QParticle
 from braandket_circuit.operations.identity import Identity
-from braandket_circuit.operations.matrix import MatrixOperation, QubitsMatrixOperation
 from braandket_circuit.operations.structural import Controlled
 
+# identity
 
-# simple single qubit gates
+I = Identity
 
-class _SingleQubitConstantGate(QubitsMatrixOperation):
+
+# single qubit constant gates
+
+class _SingleQubitConstantGate(QOperation):
     def __call__(self, qubit: QParticle):
         return super().__call__(qubit)
 
@@ -19,19 +20,18 @@ class _SingleQubitConstantGate(QubitsMatrixOperation):
         return f"{self.name}"
 
 
-I = Identity
-X = _SingleQubitConstantGate(np.asarray([[0, 1], [1, 0]]), name="X")
-Y = _SingleQubitConstantGate(np.asarray([[0, -1j], [+1j, 0]]), name="Y")
-Z = _SingleQubitConstantGate(np.asarray([[1, 0], [0, -1]]), name="Z")
-S = _SingleQubitConstantGate(np.asarray([[1, 0], [0, 1j]]), name="S")
-T = _SingleQubitConstantGate(np.asarray([[1, 0], [0, np.exp(1j * np.pi / 4)]]), name="T")
-H = _SingleQubitConstantGate(np.asarray([[1, 1], [1, -1]]) / np.sqrt(2), name="H")
+X = _SingleQubitConstantGate(name="X")
+Y = _SingleQubitConstantGate(name="Y")
+Z = _SingleQubitConstantGate(name="Z")
+S = _SingleQubitConstantGate(name="S")
+T = _SingleQubitConstantGate(name="T")
+H = _SingleQubitConstantGate(name="H")
 NOT = X
 
 
-# parametrized single qubit gates
+# single qubit rotation gates
 
-class _SingleQubitRotationGate(MatrixOperation, abc.ABC):
+class _SingleQubitRotationGate(QOperation, abc.ABC):
     def __init__(self, theta: ArrayLike, *, name: str):
         super().__init__(name=name)
         self._theta = theta
@@ -51,48 +51,15 @@ class Rx(_SingleQubitRotationGate):
     def __init__(self, theta: ArrayLike):
         super().__init__(theta, name="Rx")
 
-    def make_matrix(self, qubit: QParticle) -> BackendValue:
-        backend = qubit.backend
-        theta = backend.convert(self.theta)
-        half_theta = backend.div(theta, 2.0)
-        cos_half_theta = backend.cos(half_theta)
-        sin_half_theta = backend.sin(half_theta)
-        m1j_sin_half_theta = backend.mul(sin_half_theta, -1.0j)
-        return backend.add(
-            cos_half_theta * I.make_matrix(qubit),
-            m1j_sin_half_theta * X.make_matrix(qubit))
-
 
 class Ry(_SingleQubitRotationGate):
     def __init__(self, theta: ArrayLike):
         super().__init__(theta, name="Ry")
 
-    def make_matrix(self, qubit: QParticle) -> BackendValue:
-        backend = qubit.backend
-        theta = backend.convert(self.theta)
-        half_theta = backend.div(theta, 2.0)
-        cos_half_theta = backend.cos(half_theta)
-        sin_half_theta = backend.sin(half_theta)
-        m1j_sin_half_theta = backend.mul(sin_half_theta, -1.0j)
-        return backend.add(
-            cos_half_theta * I.make_matrix(qubit),
-            m1j_sin_half_theta * Y.make_matrix(qubit))
-
 
 class Rz(_SingleQubitRotationGate):
     def __init__(self, theta: ArrayLike):
         super().__init__(theta, name="Rz")
-
-    def make_matrix(self, qubit: QParticle) -> BackendValue:
-        backend = qubit.backend
-        theta = backend.convert(self.theta)
-        half_theta = backend.div(theta, 2.0)
-        cos_half_theta = backend.cos(half_theta)
-        sin_half_theta = backend.sin(half_theta)
-        m1j_sin_half_theta = backend.mul(sin_half_theta, -1.0j)
-        return backend.add(
-            cos_half_theta * I.make_matrix(qubit),
-            m1j_sin_half_theta * Z.make_matrix(qubit))
 
 
 # controlled gates
