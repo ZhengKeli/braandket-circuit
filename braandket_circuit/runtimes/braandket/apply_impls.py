@@ -5,8 +5,8 @@ import numpy as np
 import braandket as bnk
 from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
 from braandket_circuit.basics import QOperation, QParticle, QSystemStruct
-from braandket_circuit.operations import Controlled, H, MeasurementResult, ProjectiveMeasurement, Rx, Ry, Rz, S, T, X, \
-    Y, Z
+from braandket_circuit.operations import Controlled, DesiredMeasurement, H, MeasurementResult, ProjectiveMeasurement, \
+    Rx, Ry, Rz, S, T, X, Y, Z
 from braandket_circuit.traits import register_apply_impl
 from braandket_circuit.utils.struct import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
@@ -150,6 +150,33 @@ def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args:
     value = cases_value[choice]
     prob = backend.take(cases_prob, choice)
     component = backend.take(cases_component, choice)
+
+    ket_tensor = PureStateTensor.of(bnk.prod(*(
+        space.eigenstate(value, backend=backend)
+        for space, value in zip(spaces, value))))
+    if isinstance(state_tensor, PureStateTensor):
+        state_tensor = PureStateTensor.of(ket_tensor @ component)
+    elif isinstance(state_tensor, MixedStateTensor):
+        state_tensor = MixedStateTensor.of((ket_tensor @ ket_tensor.ct) @ component)
+    else:
+        raise TypeError(f"Unexpected type of state tensor: {type(state_tensor)}")
+    state.tensor = state_tensor
+
+    return MeasurementResult(args, value, prob)
+
+
+@register_apply_impl(BnkRuntime, DesiredMeasurement)
+def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSystemStruct) -> MeasurementResult:
+    particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
+    spaces = tuple(particle.space for particle in particles)
+    state = BnkState.prod(*(particle.state for particle in particles))
+    state_tensor = state.tensor
+    backend = state_tensor.backend
+
+    value = tuple(iter_struct(op.value, atom_typ=int))
+    component = state_tensor.component(((space, value) for space, value in zip(spaces, value)))
+    prob = component.norm().values()
+    component = component.normalize()
 
     ket_tensor = PureStateTensor.of(bnk.prod(*(
         space.eigenstate(value, backend=backend)
