@@ -1,7 +1,7 @@
 import abc
 from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
 
-from braandket_circuit.basics import QOperation, QSystem, QSystemStruct
+from braandket_circuit.basics import QOperation, QParticle, QSystemStruct, R
 from braandket_circuit.utils.struct import freeze_struct, map_struct
 
 Op = TypeVar('Op', bound=QOperation)
@@ -22,9 +22,9 @@ class Remapped(QOperation, Generic[Op], abc.ABC):
     def remap(self, *args: QSystemStruct) -> QSystemStruct:
         pass
 
-    def __call__(self, *args: QSystemStruct):
+    def __call__(self, *args: QSystemStruct) -> R:
         mapped_args = self.remap(*args)
-        if isinstance(mapped_args, QSystem):
+        if isinstance(mapped_args, QParticle):
             mapped_args = (mapped_args,)
         return self.op(*mapped_args)
 
