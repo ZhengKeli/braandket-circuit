@@ -5,13 +5,13 @@ import numpy as np
 from braandket import ArrayLike, BackendValue
 from braandket_circuit.basics import QParticle
 from braandket_circuit.operations.identity import Identity
-from braandket_circuit.operations.operator import MatrixOperation, QubitsConstantMatrixOperation
+from braandket_circuit.operations.matrix import MatrixOperation, QubitsMatrixOperation
 from braandket_circuit.operations.structural import Controlled
 
 
 # simple single qubit gates
 
-class _SingleQubitConstantGate(QubitsConstantMatrixOperation):
+class _SingleQubitConstantGate(QubitsMatrixOperation):
     def __call__(self, qubit: QParticle):
         return super().__call__(qubit)
 

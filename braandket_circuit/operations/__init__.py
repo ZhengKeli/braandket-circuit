@@ -1,4 +1,4 @@
 from .gates import *
 from .identity import Identity
-from .operator import *
+from .matrix import MatrixOperation, QubitsMatrixOperation
 from .structural import *
