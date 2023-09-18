@@ -1,10 +1,12 @@
 import numpy as np
 
-from braandket import OperatorTensor
-from braandket_circuit.basics import QOperation
-from braandket_circuit.operations import H, Rx, Ry, Rz, S, T, X, Y, Z
+import braandket as bnk
+from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
+from braandket_circuit.basics import QOperation, QParticle, QSystemStruct
+from braandket_circuit.operations import Controlled, H, Rx, Ry, Rz, S, T, X, Y, Z
 from braandket_circuit.traits import register_op_impl
-from .runtime import BnkParticle, BnkRuntime
+from braandket_circuit.utils.struct import iter_struct
+from .runtime import BnkParticle, BnkRuntime, BnkState
 
 
 @register_op_impl(BnkRuntime, X)
@@ -96,3 +98,33 @@ def rz_gate_impl(rt: BnkRuntime, op: Rz, qubit: BnkParticle):
 
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
+
+
+@register_op_impl(BnkRuntime, Controlled)
+def controlled_impl(_: BnkRuntime, op: Controlled, control: QSystemStruct, target: QSystemStruct):
+    control_spaces = set(particle.space for particle in iter_struct(control, atom_typ=BnkParticle))
+    control_identity = bnk.prod(*(sp.identity() for sp in control_spaces))
+    control_projector_on = bnk.prod(*(sp.projector(1) for sp in control_spaces))
+    control_projector_off = control_identity - control_projector_on
+
+    total_state = BnkState.prod(
+        *(particle.state for particle in iter_struct(control, atom_typ=BnkParticle)),
+        *(particle.state for particle in iter_struct(target, atom_typ=BnkParticle)))
+    total_state_off = total_state.tensor
+
+    if isinstance(target, QParticle):
+        op.op(target)
+    else:
+        op.op(*target)
+    total_state_on = total_state.tensor
+
+    if isinstance(total_state_off, PureStateTensor) and isinstance(total_state_on, PureStateTensor):
+        total_state.tensor = PureStateTensor.of(bnk.sum(
+            control_projector_on @ total_state_on,
+            control_projector_off @ total_state_off))
+    else:
+        total_state_on = MixedStateTensor.of(total_state_on)
+        total_state_off = MixedStateTensor.of(total_state_off)
+        total_state.tensor = MixedStateTensor.of(bnk.sum(
+            control_projector_on @ total_state_on @ control_projector_on,
+            control_projector_off @ total_state_off @ control_projector_off))
