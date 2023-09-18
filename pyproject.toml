@@ -11,5 +11,6 @@ readme = "README.md"
 packages = [{ include = "braandket_circuit" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 braandket = "^0.8.5"
+zkl-registries = { git = "https://gitee.com/zhengkeli/zkl-pythonx-registries", branch = "main" }

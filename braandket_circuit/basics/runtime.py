@@ -11,9 +11,15 @@ class QRuntime(abc.ABC):
     def allocate(self, n: int, name: str | None = None) -> QSystem:
         pass
 
-    @abc.abstractmethod
     def operate(self, op: QOperation[R], *args: QSystemStruct) -> R:
-        pass
+        from braandket_circuit.traits import get_op_impls
+        impls = get_op_impls(type(self), type(op))
+        for impl in reversed(impls):
+            try:
+                return impl(self, op, *args)
+            except NotImplementedError:
+                pass
+        raise NotImplementedError
 
     def __enter__(self):
         token = _default_runtime.set(self)
