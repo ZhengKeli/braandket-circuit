@@ -12,14 +12,8 @@ class QRuntime(abc.ABC):
         pass
 
     def operate(self, op: QOperation[R], *args: QSystemStruct) -> R:
-        from braandket_circuit.traits import get_op_impls
-        impls = get_op_impls(type(self), type(op))
-        for impl in reversed(impls):
-            try:
-                return impl(self, op, *args)
-            except NotImplementedError:
-                pass
-        raise NotImplementedError
+        from braandket_circuit.traits import apply
+        return apply(self, op, *args)
 
     def __enter__(self):
         token = _default_runtime.set(self)

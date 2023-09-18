@@ -5,39 +5,39 @@ from zkl_registries import ObjTagKey, SimpleRegistry, SupTypeTagKey
 
 Rt = TypeVar('Rt', bound=QRuntime)
 Op = TypeVar('Op', bound=QOperation)
-BnkRuntimeOpImpl = Callable[[Rt, Op, QSystemStruct], R]
+ApplyImpl = Callable[[Rt, Op, QSystemStruct], R]
 
 RtType = SupTypeTagKey[type[QRuntime], type[QRuntime]]('RuntimeType')
 OpType = SupTypeTagKey[type[QOperation], type[QOperation]]('OperationType')
 OpInst = ObjTagKey[QOperation]('OperationInstance', strict=False, required=False)
-_op_impl_registry = SimpleRegistry[BnkRuntimeOpImpl, Any, Any](keys=[RtType, OpType, OpInst])
+_registry = SimpleRegistry[ApplyImpl, Any, Any](keys=[RtType, OpType, OpInst])
 
 
 @overload
-def register_op_impl(
+def register_apply_impl(
     rt: type[Rt] | Rt | None,
     op: type[Op] | Op | None,
-    impl: BnkRuntimeOpImpl
-) -> BnkRuntimeOpImpl:
+    impl: ApplyImpl
+) -> ApplyImpl:
     pass
 
 
 @overload
-def register_op_impl(
+def register_apply_impl(
     rt: type[Rt] | Rt | None,
     op: type[Op] | Op | None,
-) -> Callable[[BnkRuntimeOpImpl], BnkRuntimeOpImpl]:
+) -> Callable[[ApplyImpl], ApplyImpl]:
     pass
 
 
-def register_op_impl(
+def register_apply_impl(
     rt: type[Rt] | Rt | None,
     op: type[Op] | Op | None,
-    impl: BnkRuntimeOpImpl | None = None
-) -> BnkRuntimeOpImpl | Callable[[BnkRuntimeOpImpl], BnkRuntimeOpImpl]:
+    impl: ApplyImpl | None = None
+) -> ApplyImpl | Callable[[ApplyImpl], ApplyImpl]:
     if impl is None:
-        def decorator(impl: BnkRuntimeOpImpl):
-            register_op_impl(rt, op, impl)
+        def decorator(impl: ApplyImpl):
+            register_apply_impl(rt, op, impl)
             return impl
 
         return decorator
@@ -51,14 +51,14 @@ def register_op_impl(
         op_type = op
         op = None
 
-    _op_impl_registry.register(impl, {RtType: rt, OpType: op_type, OpInst: op})
+    _registry.register(impl, {RtType: rt, OpType: op_type, OpInst: op})
     return impl
 
 
-def get_op_impls(
+def get_apply_impls(
     rt: type[Rt] | Rt | None,
     op: type[Op] | Op | None,
-) -> tuple[BnkRuntimeOpImpl, ...]:
+) -> tuple[ApplyImpl, ...]:
     if not isinstance(rt, type):
         rt = type(rt)
     if not isinstance(op, type):
@@ -67,4 +67,14 @@ def get_op_impls(
         op_type = op
         op = None
 
-    return _op_impl_registry.match({RtType: rt, OpType: op_type, OpInst: op})
+    return _registry.match({RtType: rt, OpType: op_type, OpInst: op})
+
+
+def apply(rt: Rt, op: Op, *args: QSystemStruct) -> R:
+    impls = get_apply_impls(rt, op)
+    for impl in reversed(impls):
+        try:
+            return impl(rt, op, *args)
+        except NotImplementedError:
+            pass
+    raise NotImplementedError

@@ -105,4 +105,4 @@ class BnkParticle(QParticle):
         return hash((id(self.space), id(self.state)))
 
 
-importlib.import_module(".impls", __package__)
+importlib.import_module(".apply_impls", __package__)
