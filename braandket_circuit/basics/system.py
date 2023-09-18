@@ -13,6 +13,13 @@ class QSystem(abc.ABC):
     def particles(self) -> tuple['QParticle', ...]:
         pass
 
+    # allocate
+
+    @classmethod
+    def allocate(cls, n: int, *, name: str | None = None) -> 'QSystem':
+        from .runtime import get_runtime
+        return get_runtime().allocate(n, name=name)
+
     # compose
 
     def __matmul__(self, other: 'QSystem'):
