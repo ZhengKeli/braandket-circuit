@@ -1,4 +1,6 @@
 import abc
+from contextvars import ContextVar
+from typing import Optional
 
 from .operation import QOperation, R
 from .system import QSystem, QSystemStruct
@@ -12,3 +14,22 @@ class QRuntime(abc.ABC):
     @abc.abstractmethod
     def operate(self, op: QOperation[R], *args: QSystemStruct) -> R:
         pass
+
+    def __enter__(self):
+        token = _default_runtime.set(self)
+        setattr(self, '_org_default_runtime_token_', token)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        token = getattr(self, '_org_default_runtime_token_')
+        _default_runtime.reset(token)
+
+
+_default_runtime = ContextVar[Optional[QRuntime]]('default_runtime', default=None)
+
+
+def get_default_runtime() -> QRuntime:
+    runtime = _default_runtime.get()
+    if runtime is None:
+        raise NotImplementedError  # TODO init default runtime
+    return runtime
