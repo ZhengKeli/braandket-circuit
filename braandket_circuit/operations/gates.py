@@ -73,3 +73,8 @@ class RotationYGate(_SingleQubitRotationGate):
 class RotationZGate(_SingleQubitRotationGate):
     def __init__(self, theta: ArrayLike):
         super().__init__(theta, name="Rz")
+
+
+class GlobalPhaseGate(_SingleQubitRotationGate):
+    def __init__(self, theta: ArrayLike):
+        super().__init__(theta, name="Phase")

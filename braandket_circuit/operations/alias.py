@@ -1,6 +1,6 @@
 from .controlled import Controlled
-from .gates import HadamardGate, HalfPiPhaseGate, PauliXGate, PauliYGate, PauliZGate, QuarterPiPhaseGate, RotationXGate, \
-    RotationYGate, RotationZGate
+from .gates import GlobalPhaseGate, HadamardGate, HalfPiPhaseGate, PauliXGate, PauliYGate, PauliZGate, \
+    QuarterPiPhaseGate, RotationXGate, RotationYGate, RotationZGate
 from .identity import Identity
 from .measurement import DesiredMeasurement, ProjectiveMeasurement
 
@@ -29,6 +29,7 @@ NOT = X
 Rx = RotationXGate
 Ry = RotationYGate
 Rz = RotationZGate
+Phase = GlobalPhaseGate
 
 # controlled gates
 

@@ -5,7 +5,7 @@ import numpy as np
 import braandket as bnk
 from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
 from braandket_circuit.basics import QParticle, QSystemStruct
-from braandket_circuit.operations import Controlled, DesiredMeasurement, HadamardGate, HalfPiPhaseGate, \
+from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalPhaseGate, HadamardGate, HalfPiPhaseGate, \
     MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, QuarterPiPhaseGate, RotationXGate, \
     RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
@@ -51,6 +51,13 @@ def t_gate_impl(rt: BnkRuntime, _: QuarterPiPhaseGate, qubit: BnkParticle):
 @register_apply_impl(BnkRuntime, HadamardGate)
 def h_gate_impl(rt: BnkRuntime, _: HadamardGate, qubit: BnkParticle):
     matrix = np.asarray([[1, 1], [1, -1]]) / np.sqrt(2)
+    operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
+    qubit.state.tensor = operator @ qubit.state.tensor
+
+
+@register_apply_impl(BnkRuntime, GlobalPhaseGate)
+def phase_gate_impl(rt: BnkRuntime, op: GlobalPhaseGate, qubit: BnkParticle):
+    matrix = np.asarray([[np.exp(1j * op.theta), 0], [0, np.exp(1j * op.theta)]])
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
