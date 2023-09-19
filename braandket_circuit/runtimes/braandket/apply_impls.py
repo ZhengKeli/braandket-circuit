@@ -144,12 +144,11 @@ def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args:
     cases_value = tuple(itertools.product(*(range(space.n) for space in spaces)))
     cases_component = tuple(state_tensor.component(zip(spaces, case_values)) for case_values in cases_value)
     cases_prob = tuple(component.norm().values() for component in cases_component)
-    cases_component = tuple(component.normalize() for component in cases_component)
 
     choice = backend.choose(cases_prob)
     value = cases_value[choice]
-    prob = backend.take(cases_prob, choice)
-    component = backend.take(cases_component, choice)
+    prob = cases_prob[choice]
+    component = cases_component[choice].normalize()
 
     ket_tensor = PureStateTensor.of(bnk.prod(*(
         space.eigenstate(value, backend=backend)
