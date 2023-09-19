@@ -99,6 +99,18 @@ class QComposed(QSystem, Generic[S], Iterable[S]):
     def __getitem__(self, item):
         return self._components[item]
 
+    # str & repr
+
+    def __str__(self):
+        if self.name:
+            return self.name
+        return f"({', '.join(str(component) for component in self._components)})"
+
+    def __repr__(self):
+        name_str = f", name={self.name}" if self.name else ""
+        components_str = ", ".join(repr(component) for component in self._components)
+        return f"{type(self).__name__}([{components_str}]{name_str})"
+
 
 # allocation
 
