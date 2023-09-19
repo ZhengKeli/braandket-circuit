@@ -5,8 +5,6 @@ from braandket import ArrayLike
 from braandket_circuit.basics import QOperation, QSystemStruct
 
 
-# result
-
 @dataclasses.dataclass
 class MeasurementResult:
     target: QSystemStruct
@@ -14,16 +12,9 @@ class MeasurementResult:
     prob: ArrayLike
 
 
-# projective
-
-class _ProjectiveMeasurement(QOperation):
+class ProjectiveMeasurement(QOperation):
     pass
 
-
-ProjectiveMeasurement = _ProjectiveMeasurement()
-
-
-# desired
 
 class DesiredMeasurement(QOperation):
     def __init__(self, value: ArrayLike, *, name: Optional[str] = None):

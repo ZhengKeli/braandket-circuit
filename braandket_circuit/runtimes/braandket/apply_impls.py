@@ -4,58 +4,59 @@ import numpy as np
 
 import braandket as bnk
 from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
-from braandket_circuit.basics import QOperation, QParticle, QSystemStruct
-from braandket_circuit.operations import Controlled, DesiredMeasurement, H, MeasurementResult, ProjectiveMeasurement, \
-    Rx, Ry, Rz, S, T, X, Y, Z
+from braandket_circuit.basics import QParticle, QSystemStruct
+from braandket_circuit.operations import Controlled, DesiredMeasurement, HadamardGate, HalfPiPhaseGate, \
+    MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, QuarterPiPhaseGate, RotationXGate, \
+    RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
 from braandket_circuit.utils.struct import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
 
 
-@register_apply_impl(BnkRuntime, X)
-def x_gate_impl(rt: BnkRuntime, _: QOperation, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, PauliXGate)
+def x_gate_impl(rt: BnkRuntime, _: PauliXGate, qubit: BnkParticle):
     matrix = np.asarray([[0, 1], [1, 0]])
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, Y)
-def y_gate_impl(rt: BnkRuntime, _: QOperation, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, PauliYGate)
+def y_gate_impl(rt: BnkRuntime, _: PauliYGate, qubit: BnkParticle):
     matrix = np.asarray([[0, -1j], [+1j, 0]])
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, Z)
-def z_gate_impl(rt: BnkRuntime, _: QOperation, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, PauliZGate)
+def z_gate_impl(rt: BnkRuntime, _: PauliZGate, qubit: BnkParticle):
     matrix = np.asarray([[1, 0], [0, -1]])
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, S)
-def s_gate_impl(rt: BnkRuntime, _: QOperation, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, HalfPiPhaseGate)
+def s_gate_impl(rt: BnkRuntime, _: HalfPiPhaseGate, qubit: BnkParticle):
     matrix = np.asarray([[1, 0], [0, 1j]])
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, T)
-def t_gate_impl(rt: BnkRuntime, _: QOperation, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, QuarterPiPhaseGate)
+def t_gate_impl(rt: BnkRuntime, _: QuarterPiPhaseGate, qubit: BnkParticle):
     matrix = np.asarray([[1, 0], [0, np.exp(1j * np.pi / 4)]])
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, H)
-def h_gate_impl(rt: BnkRuntime, _: QOperation, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, HadamardGate)
+def h_gate_impl(rt: BnkRuntime, _: HadamardGate, qubit: BnkParticle):
     matrix = np.asarray([[1, 1], [1, -1]]) / np.sqrt(2)
     operator = OperatorTensor.from_matrix(matrix, [qubit.space], backend=rt.backend)
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, Rx)
-def rx_gate_impl(rt: BnkRuntime, op: Rx, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, RotationXGate)
+def rx_gate_impl(rt: BnkRuntime, op: RotationXGate, qubit: BnkParticle):
     backend = rt.backend
     theta = backend.convert(op.theta)
     half_theta = backend.div(theta, 2.0)
@@ -70,8 +71,8 @@ def rx_gate_impl(rt: BnkRuntime, op: Rx, qubit: BnkParticle):
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, Ry)
-def ry_gate_impl(rt: BnkRuntime, op: Ry, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, RotationYGate)
+def ry_gate_impl(rt: BnkRuntime, op: RotationYGate, qubit: BnkParticle):
     backend = rt.backend
     theta = backend.convert(op.theta)
     half_theta = backend.div(theta, 2.0)
@@ -85,8 +86,8 @@ def ry_gate_impl(rt: BnkRuntime, op: Ry, qubit: BnkParticle):
     qubit.state.tensor = operator @ qubit.state.tensor
 
 
-@register_apply_impl(BnkRuntime, Rz)
-def rz_gate_impl(rt: BnkRuntime, op: Rz, qubit: BnkParticle):
+@register_apply_impl(BnkRuntime, RotationZGate)
+def rz_gate_impl(rt: BnkRuntime, op: RotationZGate, qubit: BnkParticle):
     backend = rt.backend
     theta = backend.convert(op.theta)
     half_theta = backend.div(theta, 2.0)
