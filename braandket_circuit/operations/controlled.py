@@ -16,6 +16,10 @@ class Controlled(Generic[Op], QOperation[None]):
     def op(self) -> Op:
         return self._op
 
+    def __repr__(self):
+        name_str = f", name={self.name!r}" if self.name else ""
+        return f"{type(self).__name__}({self._op!r}{name_str})"
+
 
 @overload
 def control(op: Op, control: Callable[QSystemSpec, QSystemStruct], target: Callable[QSystemSpec, QSystemStruct]):

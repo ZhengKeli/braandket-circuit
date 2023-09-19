@@ -12,34 +12,34 @@ class _SingleQubitGate(QOperation, abc.ABC):
 
 # constant gates
 
-class PauliXGate(_SingleQubitGate):
-    def __init__(self):
-        super().__init__(name="X")
+class _SingleQubitConstantGate(_SingleQubitGate, abc.ABC):
+    def __repr__(self):
+        name_str = f"name={self.name!r}" if self.name else ""
+        return f"{type(self).__name__}({name_str})"
 
 
-class PauliYGate(_SingleQubitGate):
-    def __init__(self):
-        super().__init__(name="Y")
+class PauliXGate(_SingleQubitConstantGate):
+    pass
 
 
-class PauliZGate(_SingleQubitGate):
-    def __init__(self):
-        super().__init__(name="Z")
+class PauliYGate(_SingleQubitConstantGate):
+    pass
 
 
-class HalfPiPhaseGate(_SingleQubitGate):
-    def __init__(self):
-        super().__init__(name="S")
+class PauliZGate(_SingleQubitConstantGate):
+    pass
 
 
-class QuarterPiPhaseGate(_SingleQubitGate):
-    def __init__(self):
-        super().__init__(name="T")
+class HalfPiPhaseGate(_SingleQubitConstantGate):
+    pass
 
 
-class HadamardGate(_SingleQubitGate):
-    def __init__(self):
-        super().__init__(name="H")
+class QuarterPiPhaseGate(_SingleQubitConstantGate):
+    pass
+
+
+class HadamardGate(_SingleQubitConstantGate):
+    pass
 
 
 # rotation gates
@@ -53,28 +53,22 @@ class _SingleQubitRotationGate(_SingleQubitGate, abc.ABC):
     def theta(self) -> ArrayLike:
         return self._theta
 
-    def __str__(self):
-        return f'{self.name}({self.theta})'
-
     def __repr__(self):
-        return f'{type(self).__name__}({self.theta})'
+        name_str = f", name={self.name!r}" if self.name else ""
+        return f"{type(self).__name__}({self.theta!r}{name_str})"
 
 
 class RotationXGate(_SingleQubitRotationGate):
-    def __init__(self, theta: ArrayLike):
-        super().__init__(theta, name="Rx")
+    pass
 
 
 class RotationYGate(_SingleQubitRotationGate):
-    def __init__(self, theta: ArrayLike):
-        super().__init__(theta, name="Ry")
+    pass
 
 
 class RotationZGate(_SingleQubitRotationGate):
-    def __init__(self, theta: ArrayLike):
-        super().__init__(theta, name="Rz")
+    pass
 
 
 class GlobalPhaseGate(_SingleQubitRotationGate):
-    def __init__(self, theta: ArrayLike):
-        super().__init__(theta, name="Phase")
+    pass

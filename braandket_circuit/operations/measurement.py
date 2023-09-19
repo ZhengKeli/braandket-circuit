@@ -13,7 +13,9 @@ class MeasurementResult:
 
 
 class ProjectiveMeasurement(QOperation):
-    pass
+    def __repr__(self):
+        name_str = f"name={self.name!r}" if self.name else ""
+        return f"{type(self).__name__}({name_str})"
 
 
 class DesiredMeasurement(QOperation):
@@ -24,3 +26,7 @@ class DesiredMeasurement(QOperation):
     @property
     def value(self) -> ArrayLike:
         return self._value
+
+    def __repr__(self):
+        name_str = f", name={self.name!r}" if self.name else ""
+        return f"{type(self).__name__}({self.value!r}{name_str})"

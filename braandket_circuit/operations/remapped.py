@@ -46,7 +46,7 @@ class RemappedByLambda(Remapped[Op]):
         return self.func(*args)
 
     def __repr__(self) -> str:
-        return f"RemappedByLambda({self.op}, {self.func})"
+        return f"RemappedByLambda({self.op!r}, {self.func!r})"
 
 
 class RemappedByIndices(Remapped[Op]):
@@ -62,7 +62,7 @@ class RemappedByIndices(Remapped[Op]):
         return map_struct(lambda i: args[i], self._indices, atom_typ=int)
 
     def __repr__(self) -> str:
-        return f"RemappedByIndices({self.op}, {', '.join(map(str, self._indices))})"
+        return f"RemappedByIndices({self.op!r}, {', '.join(map(repr, self._indices))})"
 
 
 @overload
