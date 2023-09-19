@@ -18,6 +18,14 @@ class BnkRuntime(QRuntime):
     def allocate(self, n: int, name: str | None = None) -> QSystem:
         return BnkParticle(KetSpace(n, name=name))
 
+    def __enter__(self):
+        self.backend.__enter__()
+        return super().__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        super().__exit__(exc_type, exc_val, exc_tb)
+        self.backend.__exit__(exc_type, exc_val, exc_tb)
+
 
 class BnkState:
     def __init__(self, tensor: StateTensor, systems: QSystemStruct = ()):
