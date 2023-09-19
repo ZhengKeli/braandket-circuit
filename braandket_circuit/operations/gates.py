@@ -2,9 +2,9 @@ import abc
 
 from braandket import ArrayLike
 from braandket_circuit.basics import QOperation, QParticle
+from braandket_circuit.operations.controlled import Controlled
 from braandket_circuit.operations.identity import Identity
 from braandket_circuit.operations.measurement import DesiredMeasurement, ProjectiveMeasurement
-from braandket_circuit.operations.structural import Controlled
 
 # identity
 
