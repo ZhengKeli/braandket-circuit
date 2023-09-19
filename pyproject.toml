@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "braandket-circuit"
-version = "0.1.0"
+version = "0.2.0a0"
 description = "A library for working with quantum circuits based on BraAndKet."
 authors = []
 readme = "README.md"
@@ -13,4 +13,4 @@ packages = [{ include = "braandket_circuit" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 braandket = "^0.8.5"
-zkl-registries = { git = "https://gitee.com/zhengkeli/zkl-pythonx-registries", branch = "main" }
+zkl-registries = { git = "https://gitee.com/zhengkeli/zkl-pythonx-registries", tag = "v0.1.0" }
