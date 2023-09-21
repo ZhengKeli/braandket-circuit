@@ -2,7 +2,7 @@ import abc
 from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union
 
 from braandket_circuit.basics import QOperation, QParticle, QSystemStruct, R
-from braandket_circuit.utils.struct import freeze_struct, map_struct
+from braandket_circuit.utils import freeze_struct, map_struct
 
 Op = TypeVar('Op', bound=QOperation)
 QSystemSpec = ParamSpec('QSystemSpec', bound=QSystemStruct)

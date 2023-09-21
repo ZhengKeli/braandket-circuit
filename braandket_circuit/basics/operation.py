@@ -1,7 +1,7 @@
 import abc
 from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
 
-from braandket_circuit.utils.struct import map_struct
+from braandket_circuit.utils import map_struct
 from .system import QSystemStruct
 
 R = TypeVar('R')
