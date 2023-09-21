@@ -1,6 +1,7 @@
 import abc
 from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
 
+from braandket_circuit.utils.struct import map_struct
 from .system import QSystemStruct
 
 R = TypeVar('R')
@@ -28,18 +29,47 @@ class QOperation(Generic[R], abc.ABC):
     # remap
 
     @overload
-    def on(self, func: Callable[QSystemSpec, QSystemStruct]) -> 'QOperation':
+    def on(self,
+        func: Callable[QSystemSpec, QSystemStruct], *,
+        ctrl: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+    ) -> 'QOperation':
         pass
 
     @overload
-    def on(self, *indices: IndexStruct) -> 'QOperation':
+    def on(self,
+        *indices: IndexStruct,
+        ctrl: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+    ) -> 'QOperation':
         pass
 
-    def on(self, *args: Callable[QSystemSpec, QSystemStruct] | IndexStruct) -> 'QOperation':
-        if len(args) == 1 and callable(args[0]):
+    def on(self,
+        *target: Callable[QSystemSpec, QSystemStruct] | IndexStruct,
+        ctrl: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+    ) -> 'QOperation':
+        target_is_lambda = len(target) == 1 and callable(target[0])
+        if target_is_lambda:
+            target = target[0]
+
+        if ctrl is None:
+            if target_is_lambda:
+                from braandket_circuit import RemappedByLambda
+                return RemappedByLambda(self, target)
+            else:
+                from braandket_circuit import RemappedByIndices
+                return RemappedByIndices(self, *target)
+
+        from braandket_circuit import Controlled
+        controlled = Controlled(self)
+
+        control_is_lambda = callable(ctrl)
+        if target_is_lambda or control_is_lambda:
+            if not target_is_lambda:
+                target = lambda *args: map_struct(lambda i: args[i], target, atom_typ=int)
+            if not control_is_lambda:
+                ctrl = lambda *args: map_struct(lambda i: args[i], ctrl, atom_typ=int)
+
             from braandket_circuit import RemappedByLambda
-            op = RemappedByLambda(self, args[0])
+            return RemappedByLambda(controlled, lambda *args: (ctrl(*args), target(*args)))
         else:
             from braandket_circuit import RemappedByIndices
-            op = RemappedByIndices(self, *args)
-        return op
+            return RemappedByIndices(controlled, ctrl, target)
