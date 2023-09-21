@@ -7,9 +7,26 @@ Op = TypeVar('Op', bound=QOperation)
 
 
 class Sequential(QOperation[tuple], Generic[Op]):
+    @overload
+    def __init__(self, *steps: Op, name: Optional[str] = None):
+        pass
+
+    @overload
     def __init__(self, steps: Iterable[Op], *, name: Optional[str] = None):
+        pass
+
+    def __init__(self, *args: Iterable[Op] | Op, name: Optional[str] = None):
         super().__init__(name=name)
-        self._steps = tuple(steps)
+        if len(args) == 1:
+            args0 = args[0]
+            if isinstance(args0, QOperation):
+                self._steps = args0,
+            elif isinstance(args0, Iterable):
+                self._steps = tuple(args0)
+            else:
+                raise TypeError(f"Unexpected type {type(args0)}!")
+        else:
+            self._steps = args
 
     def __len__(self):
         return len(self._steps)
