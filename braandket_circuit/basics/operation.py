@@ -1,4 +1,5 @@
 import abc
+import warnings
 from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
 
 from braandket_circuit.utils import map_struct
@@ -30,27 +31,42 @@ class QOperation(Generic[R], abc.ABC):
 
     @overload
     def on(self,
-        func: Callable[QSystemSpec, QSystemStruct], *,
-        ctrl: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        target: Callable[QSystemSpec, QSystemStruct], *,
+        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
     ) -> 'QOperation':
         pass
 
     @overload
     def on(self,
         *indices: IndexStruct,
-        ctrl: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+    ) -> 'QOperation':
+        pass
+
+    @overload
+    def on(self, *,
+        target: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
     ) -> 'QOperation':
         pass
 
     def on(self,
-        *target: Callable[QSystemSpec, QSystemStruct] | IndexStruct,
-        ctrl: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        *target_args: Callable[QSystemSpec, QSystemStruct] | IndexStruct,
+        target: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
     ) -> 'QOperation':
-        target_is_lambda = len(target) == 1 and callable(target[0])
-        if target_is_lambda:
-            target = target[0]
+        if target is not None:
+            target_is_lambda = isinstance(target, Callable)
+            if len(target_args) != 0:
+                warnings.warn("Ignored varargs when argument 'target' presents.")
+        else:
+            target_is_lambda = len(target_args) == 1 and isinstance(target_args[0], Callable)
+            if target_is_lambda:
+                target = target_args[0]
+            else:
+                target = target_args
 
-        if ctrl is None:
+        if control is None:
             if target_is_lambda:
                 from braandket_circuit import RemappedByLambda
                 return RemappedByLambda(self, target)
@@ -61,15 +77,15 @@ class QOperation(Generic[R], abc.ABC):
         from braandket_circuit import Controlled
         controlled = Controlled(self)
 
-        control_is_lambda = callable(ctrl)
+        control_is_lambda = callable(control)
         if target_is_lambda or control_is_lambda:
             if not target_is_lambda:
                 target = lambda *args: map_struct(lambda i: args[i], target, atom_typ=int)
             if not control_is_lambda:
-                ctrl = lambda *args: map_struct(lambda i: args[i], ctrl, atom_typ=int)
+                control = lambda *args: map_struct(lambda i: args[i], control, atom_typ=int)
 
             from braandket_circuit import RemappedByLambda
-            return RemappedByLambda(controlled, lambda *args: (ctrl(*args), target(*args)))
+            return RemappedByLambda(controlled, lambda *args: (control(*args), target(*args)))
         else:
             from braandket_circuit import RemappedByIndices
-            return RemappedByIndices(controlled, ctrl, target)
+            return RemappedByIndices(controlled, control, target)
