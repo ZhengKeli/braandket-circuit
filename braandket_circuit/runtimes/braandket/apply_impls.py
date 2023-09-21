@@ -9,7 +9,7 @@ from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalP
     MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, QuarterPiPhaseGate, RotationXGate, \
     RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
-from braandket_circuit.utils.struct import iter_struct
+from braandket_circuit.utils import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
 
 
