@@ -53,7 +53,7 @@ files = [
 
 [[package]]
 name = "zkl-registries"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library providing simple registry utilities."
 optional = false
 python-versions = "^3.10"
@@ -63,10 +63,10 @@ develop = false
 [package.source]
 type = "git"
 url = "https://gitee.com/zhengkeli/zkl-pythonx-registries"
-reference = "v0.1.0"
-resolved_reference = "1faa0c83d02b74d7dfed3d742eb5cf6ba579c453"
+reference = "v0.1.1"
+resolved_reference = "d7f1f7985e6aeb37797c804ae9bc964bb9bbda3e"
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ccd6e471607a1bc0329bdfb225de1c5a82dd6349fa91eafea84572158f9c5fcb"
+content-hash = "6967c60c794c3530cbe9c5543b032cd253265d089b254ae5abaeb18691b1a0a7"
