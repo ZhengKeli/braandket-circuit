@@ -4,8 +4,8 @@ import braandket as bnk
 from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
 from braandket_circuit.basics import QParticle, QSystemStruct
 from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalPhaseGate, HadamardGate, HalfPiPhaseGate, \
-    MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, QuarterPiPhaseGate, RotationXGate, \
-    RotationYGate, RotationZGate
+    MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, PureStatePreparation, \
+    QuarterPiPhaseGate, RotationXGate, RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
 from braandket_circuit.utils import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
@@ -162,3 +162,18 @@ def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSyst
         args = args[0]
         results = results[0]
     return MeasurementResult(args, results, prob)
+
+
+@register_apply_impl(BnkRuntime, PureStatePreparation)
+def pure_state_preparation_impl(rt: BnkRuntime, op: PureStatePreparation, *args: QSystemStruct):
+    state_tensor_value = rt.backend.convert(op.state)
+
+    particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
+    state_spaces = tuple(particle.space for particle in particles)
+    state_tensor_shape = tuple(space.n for space in state_spaces)
+    state_tensor_value = rt.backend.reshape(state_tensor_value, state_tensor_shape)
+    state_tensor = PureStateTensor.of(state_tensor_value, state_spaces, backend=rt.backend)
+
+    state = BnkState.prod(*(particle.state for particle in particles))
+    state.tensor = state_tensor
+    # TODO check
