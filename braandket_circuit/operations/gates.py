@@ -5,7 +5,7 @@ from braandket import ArrayLike
 from braandket_circuit.basics import QOperation, QParticle
 
 
-class _SingleQubitGate(QOperation, abc.ABC):
+class _SingleQubitGate(QOperation[None], abc.ABC):
     def __call__(self, qubit: QParticle):
         return super().__call__(qubit)
 

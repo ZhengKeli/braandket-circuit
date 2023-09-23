@@ -12,13 +12,13 @@ class MeasurementResult:
     prob: ArrayLike
 
 
-class ProjectiveMeasurement(QOperation):
+class ProjectiveMeasurement(QOperation[MeasurementResult]):
     def __repr__(self):
         name_str = f"name={self.name!r}" if self.name else ""
         return f"{type(self).__name__}({name_str})"
 
 
-class DesiredMeasurement(QOperation):
+class DesiredMeasurement(QOperation[MeasurementResult]):
     def __init__(self, value: ArrayLike, *, name: Optional[str] = None):
         super().__init__(name=name)
         self._value = value
