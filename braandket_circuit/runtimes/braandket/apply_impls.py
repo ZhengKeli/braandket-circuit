@@ -1,5 +1,3 @@
-import itertools
-
 import numpy as np
 
 import braandket as bnk
@@ -144,32 +142,10 @@ def controlled_impl(_: BnkRuntime, op: Controlled, control: QSystemStruct, targe
 @register_apply_impl(BnkRuntime, ProjectiveMeasurement)
 def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args: QSystemStruct) -> MeasurementResult:
     particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
-    spaces = tuple(particle.space for particle in particles)
     state = BnkState.prod(*(particle.state for particle in particles))
-    state_tensor = state.tensor
-    backend = state_tensor.backend
-
-    cases_value = tuple(itertools.product(*(range(space.n) for space in spaces)))
-    cases_component = tuple(state_tensor.component(zip(spaces, case_values)) for case_values in cases_value)
-    cases_prob = tuple(component.norm().values() for component in cases_component)
-
-    choice = backend.choose(cases_prob)
-    value = cases_value[choice]
-    prob = cases_prob[choice]
-    component = cases_component[choice].normalize()
-
-    ket_tensor = PureStateTensor.of(bnk.prod(*(
-        space.eigenstate(value, backend=backend)
-        for space, value in zip(spaces, value))))
-    if isinstance(state_tensor, PureStateTensor):
-        state_tensor = PureStateTensor.of(ket_tensor @ component)
-    elif isinstance(state_tensor, MixedStateTensor):
-        state_tensor = MixedStateTensor.of((ket_tensor @ ket_tensor.ct) @ component)
-    else:
-        raise TypeError(f"Unexpected type of state tensor: {type(state_tensor)}")
-    state.tensor = state_tensor
-
-    return MeasurementResult(args, value, prob)
+    spaces = tuple(particle.space for particle in particles)
+    results, prob, state.tensor = state.tensor.measure(*spaces)
+    return MeasurementResult(args, results, prob)
 
 
 @register_apply_impl(BnkRuntime, DesiredMeasurement)
