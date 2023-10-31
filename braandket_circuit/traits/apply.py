@@ -1,3 +1,4 @@
+import traceback
 from typing import Any, Callable, TypeVar, overload
 
 from braandket_circuit.basics import QOperation, QRuntime, QSystemStruct, R
@@ -72,9 +73,17 @@ def get_apply_impls(
 
 def apply(rt: Rt, op: Op, *args: QSystemStruct) -> R:
     impls = get_apply_impls(rt, op)
+    impls_error = []
     for impl in reversed(impls):
         try:
             return impl(rt, op, *args)
-        except NotImplementedError:
-            pass
-    raise NotImplementedError
+        except Exception as err:
+            impls_error.append(err)
+    if not impls_error:
+        raise NotImplementedError(f"No implementation for operation {op} on runtime {rt}.")
+    elif len(impls_error) == 1:
+        raise impls_error
+    else:
+        for impl_error in impls_error:
+            traceback.print_exception(impl_error)
+        raise NotImplementedError(f"Failed to apply operation {op} on runtime {rt}")
