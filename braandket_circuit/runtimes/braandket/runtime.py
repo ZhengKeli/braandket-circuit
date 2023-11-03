@@ -15,8 +15,8 @@ class BnkRuntime(QRuntime):
     def backend(self) -> Backend:
         return self._backend
 
-    def allocate(self, n: int, name: str | None = None) -> QSystem:
-        return BnkParticle(KetSpace(n, name=name))
+    def allocate_particle(self, ndim: int, *, name: str | None = None) -> QSystem:
+        return BnkParticle(KetSpace(ndim, name=name))
 
     def __enter__(self):
         self.backend.__enter__()

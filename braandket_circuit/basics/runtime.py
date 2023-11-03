@@ -3,15 +3,15 @@ from contextvars import ContextVar
 from typing import Optional
 
 from .operation import QOperation, R
-from .system import QSystem, QSystemStruct
+from .system import QParticle, QSystemStruct
 
 
 class QRuntime(abc.ABC):
     @abc.abstractmethod
-    def allocate(self, n: int, name: str | None = None) -> QSystem:
+    def allocate_particle(self, ndim: int, *, name: str | None = None) -> QParticle:
         pass
 
-    def operate(self, op: QOperation[R], *args: QSystemStruct) -> R:
+    def apply_operation(self, op: QOperation[R], *args: QSystemStruct) -> R:
         from braandket_circuit.traits import apply
         return apply(self, op, *args)
 
