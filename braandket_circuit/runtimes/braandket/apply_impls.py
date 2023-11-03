@@ -151,25 +151,8 @@ def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args:
 @register_apply_impl(BnkRuntime, DesiredMeasurement)
 def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSystemStruct) -> MeasurementResult:
     particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
-    spaces = tuple(particle.space for particle in particles)
     state = BnkState.prod(*(particle.state for particle in particles))
-    state_tensor = state.tensor
-    backend = state_tensor.backend
-
-    value = tuple(iter_struct(op.value, atom_typ=int))
-    component = state_tensor.component(((space, value) for space, value in zip(spaces, value)))
-    prob = component.norm().values()
-    component = component.normalize()
-
-    ket_tensor = PureStateTensor.of(bnk.prod(*(
-        space.eigenstate(value, backend=backend)
-        for space, value in zip(spaces, value))))
-    if isinstance(state_tensor, PureStateTensor):
-        state_tensor = PureStateTensor.of(ket_tensor @ component)
-    elif isinstance(state_tensor, MixedStateTensor):
-        state_tensor = MixedStateTensor.of((ket_tensor @ ket_tensor.ct) @ component)
-    else:
-        raise TypeError(f"Unexpected type of state tensor: {type(state_tensor)}")
-    state.tensor = state_tensor
-
-    return MeasurementResult(args, value, prob)
+    spaces = tuple(particle.space for particle in particles)
+    results = tuple(iter_struct(op.value, atom_typ=int))
+    results, prob, state.tensor = state.tensor.measure(*zip(spaces, results))
+    return MeasurementResult(args, results, prob)
