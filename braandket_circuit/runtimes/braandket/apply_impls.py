@@ -7,7 +7,7 @@ from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalP
     MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, QuarterPiPhaseGate, RotationXGate, \
     RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
-from braandket_circuit.utils import iter_struct
+from braandket_circuit.utils import iter_struct, map_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
 
 
@@ -145,6 +145,7 @@ def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args:
     state = BnkState.prod(*(particle.state for particle in particles))
     spaces = tuple(particle.space for particle in particles)
     results, prob, state.tensor = state.tensor.measure(*spaces)
+    results = map_struct(lambda particle: results[particle.space], args, atom_typ=BnkParticle)
     return MeasurementResult(args, results, prob)
 
 
@@ -155,4 +156,5 @@ def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSyst
     spaces = tuple(particle.space for particle in particles)
     results = tuple(iter_struct(op.value, atom_typ=int))
     results, prob, state.tensor = state.tensor.measure(*zip(spaces, results))
+    results = map_struct(lambda particle: results[particle.space], args, atom_typ=BnkParticle)
     return MeasurementResult(args, results, prob)
