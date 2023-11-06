@@ -146,6 +146,9 @@ def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args:
     spaces = tuple(particle.space for particle in particles)
     results, prob, state.tensor = state.tensor.measure(*spaces)
     results = map_struct(lambda particle: results[particle.space], args, atom_typ=BnkParticle)
+    if len(args) == 1:
+        args = args[0]
+        results = results[0]
     return MeasurementResult(args, results, prob)
 
 
@@ -157,4 +160,7 @@ def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSyst
     results = tuple(iter_struct(op.value))
     results, prob, state.tensor = state.tensor.measure(*zip(spaces, results))
     results = map_struct(lambda particle: results[particle.space], args, atom_typ=BnkParticle)
+    if len(args) == 1:
+        args = args[0]
+        results = results[0]
     return MeasurementResult(args, results, prob)
