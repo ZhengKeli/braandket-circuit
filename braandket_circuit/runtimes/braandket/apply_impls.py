@@ -154,7 +154,7 @@ def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSyst
     particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
     state = BnkState.prod(*(particle.state for particle in particles))
     spaces = tuple(particle.space for particle in particles)
-    results = tuple(iter_struct(op.value, atom_typ=int))
+    results = tuple(iter_struct(op.value))
     results, prob, state.tensor = state.tensor.measure(*zip(spaces, results))
     results = map_struct(lambda particle: results[particle.space], args, atom_typ=BnkParticle)
     return MeasurementResult(args, results, prob)
