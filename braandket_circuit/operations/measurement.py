@@ -11,6 +11,9 @@ class MeasurementResult:
     value: ArrayLike
     prob: ArrayLike
 
+    def __iter__(self):
+        return iter((self.value, self.prob))
+
 
 class ProjectiveMeasurement(QOperation[MeasurementResult]):
     def __repr__(self):
