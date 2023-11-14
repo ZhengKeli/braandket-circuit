@@ -114,12 +114,12 @@ class QComposed(QSystem, Generic[S], Iterable[S]):
 
 # allocation
 
-def allocate_particle(ndim: int, *, name: str | None = None) -> QSystem:
+def allocate_particle(ndim: int, *, name: str | None = None) -> QParticle:
     from .runtime import get_runtime
-    return get_runtime().allocate(ndim, name=name)
+    return get_runtime().allocate_particle(ndim, name=name)
 
 
-def allocate_qubit(*, name: str | None = None) -> QSystem:
+def allocate_qubit(*, name: str | None = None) -> QParticle:
     return allocate_particle(2, name=name)
 
 

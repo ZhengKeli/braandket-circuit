@@ -8,3 +8,4 @@ from .matrix import MatrixOperation, QubitsMatrixOperation
 from .measurement import DesiredMeasurement, MeasurementResult, ProjectiveMeasurement
 from .remapped import Remapped, RemappedByIndices, RemappedByLambda
 from .sequential import Sequential
+from .state import PureStatePreparation

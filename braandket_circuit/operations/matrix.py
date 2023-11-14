@@ -6,7 +6,7 @@ from braandket import ArrayLike
 from braandket_circuit.basics import QOperation
 
 
-class MatrixOperation(QOperation):
+class MatrixOperation(QOperation[None]):
     """ MatrixOperation that has a constant matrix. """
 
     def __init__(self, matrix: ArrayLike, *, name: Optional[str] = None):

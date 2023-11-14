@@ -1,7 +1,7 @@
 from braandket_circuit.basics import QOperation, QSystemStruct
 
 
-class Identity(QOperation):
+class Identity(QOperation[None]):
     """ Operation that does nothing """
 
     def __call__(self, *args: QSystemStruct):

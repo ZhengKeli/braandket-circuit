@@ -1,13 +1,11 @@
-import itertools
-
 import numpy as np
 
 import braandket as bnk
 from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
 from braandket_circuit.basics import QParticle, QSystemStruct
 from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalPhaseGate, HadamardGate, HalfPiPhaseGate, \
-    MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, QuarterPiPhaseGate, RotationXGate, \
-    RotationYGate, RotationZGate
+    MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, PureStatePreparation, \
+    QuarterPiPhaseGate, RotationXGate, RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
 from braandket_circuit.utils import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
@@ -144,56 +142,38 @@ def controlled_impl(_: BnkRuntime, op: Controlled, control: QSystemStruct, targe
 @register_apply_impl(BnkRuntime, ProjectiveMeasurement)
 def projective_measurement_impl(_: BnkRuntime, __: ProjectiveMeasurement, *args: QSystemStruct) -> MeasurementResult:
     particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
-    spaces = tuple(particle.space for particle in particles)
     state = BnkState.prod(*(particle.state for particle in particles))
-    state_tensor = state.tensor
-    backend = state_tensor.backend
-
-    cases_value = tuple(itertools.product(*(range(space.n) for space in spaces)))
-    cases_component = tuple(state_tensor.component(zip(spaces, case_values)) for case_values in cases_value)
-    cases_prob = tuple(component.norm().values() for component in cases_component)
-
-    choice = backend.choose(cases_prob)
-    value = cases_value[choice]
-    prob = cases_prob[choice]
-    component = cases_component[choice].normalize()
-
-    ket_tensor = PureStateTensor.of(bnk.prod(*(
-        space.eigenstate(value, backend=backend)
-        for space, value in zip(spaces, value))))
-    if isinstance(state_tensor, PureStateTensor):
-        state_tensor = PureStateTensor.of(ket_tensor @ component)
-    elif isinstance(state_tensor, MixedStateTensor):
-        state_tensor = MixedStateTensor.of((ket_tensor @ ket_tensor.ct) @ component)
-    else:
-        raise TypeError(f"Unexpected type of state tensor: {type(state_tensor)}")
-    state.tensor = state_tensor
-
-    return MeasurementResult(args, value, prob)
+    spaces = tuple(particle.space for particle in particles)
+    results, prob, state.tensor = state.tensor.measure(spaces)
+    if len(args) == 1:
+        args = args[0]
+        results = results[0]
+    return MeasurementResult(args, results, prob)
 
 
 @register_apply_impl(BnkRuntime, DesiredMeasurement)
 def desired_measurement_impl(_: BnkRuntime, op: DesiredMeasurement, *args: QSystemStruct) -> MeasurementResult:
     particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
-    spaces = tuple(particle.space for particle in particles)
     state = BnkState.prod(*(particle.state for particle in particles))
-    state_tensor = state.tensor
-    backend = state_tensor.backend
+    spaces = tuple(particle.space for particle in particles)
+    results = tuple(iter_struct(op.value))
+    results, prob, state.tensor = state.tensor.measure(zip(spaces, results))
+    if len(args) == 1:
+        args = args[0]
+        results = results[0]
+    return MeasurementResult(args, results, prob)
 
-    value = tuple(iter_struct(op.value, atom_typ=int))
-    component = state_tensor.component(((space, value) for space, value in zip(spaces, value)))
-    prob = component.norm().values()
-    component = component.normalize()
 
-    ket_tensor = PureStateTensor.of(bnk.prod(*(
-        space.eigenstate(value, backend=backend)
-        for space, value in zip(spaces, value))))
-    if isinstance(state_tensor, PureStateTensor):
-        state_tensor = PureStateTensor.of(ket_tensor @ component)
-    elif isinstance(state_tensor, MixedStateTensor):
-        state_tensor = MixedStateTensor.of((ket_tensor @ ket_tensor.ct) @ component)
-    else:
-        raise TypeError(f"Unexpected type of state tensor: {type(state_tensor)}")
+@register_apply_impl(BnkRuntime, PureStatePreparation)
+def pure_state_preparation_impl(rt: BnkRuntime, op: PureStatePreparation, *args: QSystemStruct):
+    state_tensor_value = rt.backend.convert(op.state)
+
+    particles = tuple(particle for particle in iter_struct(args, atom_typ=BnkParticle))
+    state_spaces = tuple(particle.space for particle in particles)
+    state_tensor_shape = tuple(space.n for space in state_spaces)
+    state_tensor_value = rt.backend.reshape(state_tensor_value, state_tensor_shape)
+    state_tensor = PureStateTensor.of(state_tensor_value, state_spaces, backend=rt.backend)
+
+    state = BnkState.prod(*(particle.state for particle in particles))
     state.tensor = state_tensor
-
-    return MeasurementResult(args, value, prob)
+    # TODO check
