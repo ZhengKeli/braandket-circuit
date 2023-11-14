@@ -12,5 +12,5 @@ packages = [{ include = "braandket_circuit" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-braandket = "^0.8.5"
+braandket = "^0.8.6.post1"
 zkl-registries = { git = "https://gitee.com/zhengkeli/zkl-pythonx-registries", tag = "v0.1.1" }
