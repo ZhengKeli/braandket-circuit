@@ -43,16 +43,28 @@ def register_apply_impl(
 
         return decorator
 
-    if not isinstance(rt, type):
-        rt = type(rt)
-
-    if not isinstance(op, type):
-        op_type = type(op)
+    if rt is None:
+        rt_type = QRuntime
+    elif isinstance(rt, QRuntime):
+        rt_type = type(rt)
+    elif issubclass(rt, QRuntime):
+        rt_type = rt
     else:
-        op_type = op
-        op = None
+        raise TypeError(f"Unexpected {rt=}")
 
-    _registry.register(impl, {RtType: rt, OpType: op_type, OpInst: op})
+    if op is None:
+        op_type = QOperation
+        op_inst = None
+    elif isinstance(op, QOperation):
+        op_type = type(op)
+        op_inst = op
+    elif issubclass(op, QOperation):
+        op_type = op
+        op_inst = None
+    else:
+        raise TypeError(f"Unexpected {op=}")
+
+    _registry.register(impl, {RtType: rt_type, OpType: op_type, OpInst: op_inst})
     return impl
 
 
