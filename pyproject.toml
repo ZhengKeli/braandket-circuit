@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "braandket-circuit"
-version = "0.2.0a1"
+version = "0.2.0a2"
 description = "A library for working with quantum circuits based on BraAndKet."
 authors = []
 readme = "README.md"
