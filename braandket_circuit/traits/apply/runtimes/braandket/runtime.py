@@ -100,7 +100,7 @@ class BnkParticle(QParticle):
         return self.space.name
 
     @property
-    def n(self) -> int:
+    def ndim(self) -> int:
         return self.space.n
 
     # hash & eq

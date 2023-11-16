@@ -60,7 +60,7 @@ class QParticle(QSystem, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def n(self) -> int:
+    def ndim(self) -> int:
         pass
 
     @property
