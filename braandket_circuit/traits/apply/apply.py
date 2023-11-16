@@ -52,7 +52,7 @@ def register_apply_impl(
     return impl
 
 
-def get_apply_impls(
+def match_apply_impls(
     rt: type[Rt] | Rt | None,
     op: type[Op] | Op | None,
 ) -> tuple[ApplyImpl, ...]:
@@ -62,7 +62,7 @@ def get_apply_impls(
 
 
 def apply(rt: Rt, op: Op, *args: QSystemStruct) -> R:
-    impls = get_apply_impls(rt, op)
+    impls = match_apply_impls(rt, op)
     impls_error = []
     for impl in reversed(impls):
         try:
