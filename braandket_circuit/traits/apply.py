@@ -71,7 +71,7 @@ def apply(rt: Rt, op: Op, *args: QSystemStruct) -> R:
     if not impls_error:
         raise NotImplementedError(f"No implementation for operation {op} on runtime {rt}.")
     elif len(impls_error) == 1:
-        raise impls_error
+        raise impls_error[0]
     else:
         for impl_error in impls_error:
             traceback.print_exception(impl_error)
