@@ -20,8 +20,8 @@ class QOperation(Generic[R], abc.ABC):
         return self._name
 
     def __call__(self, *args: QSystemStruct) -> R:
-        from .runtime import get_runtime
-        return get_runtime().apply_operation(self, *args)
+        from braandket_circuit.traits.apply import get_current_runtime
+        return get_current_runtime().apply_operation(self, *args)
 
     def __repr__(self):
         name_str = f" name={self.name}" if self.name else ""

@@ -1,9 +1,10 @@
 import traceback
 from typing import Any, Callable, TypeVar, overload
 
-from braandket_circuit.basics import QOperation, QRuntime, QSystemStruct, R
+from braandket_circuit.basics import QOperation, QSystemStruct, R
+from braandket_circuit.traits.utils import resolve_type_and_instance
 from zkl_registries import ObjTagKey, SimpleRegistry, SupTypeTagKey
-from .utils import resolve_type_and_instance
+from .runtime import QRuntime
 
 Rt = TypeVar('Rt', bound=QRuntime)
 Op = TypeVar('Op', bound=QOperation)

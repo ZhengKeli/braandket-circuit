@@ -3,7 +3,8 @@ import weakref
 from typing import Optional, Union
 
 from braandket import Backend, KetSpace, PureStateTensor, StateTensor, get_default_backend
-from braandket_circuit.basics import QParticle, QRuntime, QSystem, QSystemStruct
+from braandket_circuit.basics import QParticle, QSystem, QSystemStruct
+from braandket_circuit.traits.apply import QRuntime
 from braandket_circuit.utils import iter_struct
 
 
@@ -113,4 +114,4 @@ class BnkParticle(QParticle):
         return hash((id(self.space), id(self.state)))
 
 
-importlib.import_module(".apply_impls", __package__)
+importlib.import_module(".impls", __package__)

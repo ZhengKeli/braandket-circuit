@@ -6,7 +6,7 @@ from braandket_circuit.basics import QParticle, QSystemStruct
 from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalPhaseGate, HadamardGate, HalfPiPhaseGate, \
     MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, PureStatePreparation, \
     QuarterPiPhaseGate, RotationXGate, RotationYGate, RotationZGate
-from braandket_circuit.traits import register_apply_impl
+from braandket_circuit.traits.apply.apply import register_apply_impl
 from braandket_circuit.utils import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
 
