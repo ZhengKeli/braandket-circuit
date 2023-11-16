@@ -17,5 +17,5 @@ def resolve_type_and_instance(
             # noinspection PyTypeChecker
             return type_or_instance, None
     if type_or_instance is None:
-        return None, None
+        return base_type, None
     raise TypeError(f"Unexpected {type_or_instance=}")
