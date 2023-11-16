@@ -15,7 +15,7 @@ class QOperation(Generic[R], abc.ABC):
     def __init_subclass__(cls, **kwargs):
         org_call = cls.__call__
         if org_call != QOperation.__call__:
-            from braandket_circuit.traits.apply import register_apply_impl
+            from braandket_circuit.traits import register_apply_impl
             register_apply_impl(None, cls, lambda _, op, *args: org_call(op, *args))
             del cls.__call__
 

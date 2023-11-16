@@ -30,7 +30,7 @@ _current_runtime_context_var = ContextVar[Optional[QRuntime]]('runtime', default
 
 
 def _default_runtime() -> QRuntime:
-    from .runtimes import BnkRuntime
+    from braandket_circuit import BnkRuntime
     return BnkRuntime()
 
 

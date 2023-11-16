@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from braandket import Backend, KetSpace, PureStateTensor, StateTensor, get_default_backend
 from braandket_circuit.basics import QParticle, QSystem, QSystemStruct
-from braandket_circuit.traits.apply import QRuntime
+from braandket_circuit.traits import QRuntime
 from braandket_circuit.utils import iter_struct
 
 
