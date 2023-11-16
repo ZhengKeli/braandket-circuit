@@ -176,4 +176,3 @@ def pure_state_preparation_impl(rt: BnkRuntime, op: PureStatePreparation, *args:
 
     state = BnkState.prod(*(particle.state for particle in particles))
     state.tensor = state_tensor
-    # TODO check
