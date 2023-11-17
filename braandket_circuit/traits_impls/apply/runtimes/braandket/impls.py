@@ -3,12 +3,17 @@ import numpy as np
 import braandket as bnk
 from braandket import MixedStateTensor, OperatorTensor, PureStateTensor
 from braandket_circuit.basics import QParticle, QSystemStruct
-from braandket_circuit.operations import Controlled, DesiredMeasurement, GlobalPhaseGate, HadamardGate, HalfPiPhaseGate, \
-    MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, PureStatePreparation, \
-    QuarterPiPhaseGate, RotationXGate, RotationYGate, RotationZGate
+from braandket_circuit.operations import AllocateParticle, Controlled, DesiredMeasurement, GlobalPhaseGate, \
+    HadamardGate, HalfPiPhaseGate, MeasurementResult, PauliXGate, PauliYGate, PauliZGate, ProjectiveMeasurement, \
+    PureStatePreparation, QuarterPiPhaseGate, RotationXGate, RotationYGate, RotationZGate
 from braandket_circuit.traits import register_apply_impl
 from braandket_circuit.utils import iter_struct
 from .runtime import BnkParticle, BnkRuntime, BnkState
+
+
+@register_apply_impl(BnkRuntime, AllocateParticle)
+def allocate_particle_impl(rt: BnkRuntime, op: AllocateParticle):
+    return BnkParticle(rt, bnk.KetSpace(op.ndim, name=op.name))
 
 
 @register_apply_impl(BnkRuntime, PauliXGate)

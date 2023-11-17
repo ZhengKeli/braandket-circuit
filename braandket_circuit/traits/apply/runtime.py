@@ -2,14 +2,10 @@ import abc
 from contextvars import ContextVar
 from typing import Optional
 
-from braandket_circuit.basics import QOperation, QParticle, QSystemStruct, R
+from braandket_circuit.basics import QOperation, QSystemStruct, R
 
 
 class QRuntime(abc.ABC):
-    @abc.abstractmethod
-    def allocate_particle(self, ndim: int, *, name: str | None = None) -> QParticle:
-        pass
-
     def apply_operation(self, op: QOperation[R], *args: QSystemStruct) -> R:
         from braandket_circuit.traits import apply
         return apply(self, op, *args)

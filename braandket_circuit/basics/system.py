@@ -1,5 +1,5 @@
 import abc
-from typing import Callable, Generic, Iterable, Optional, TypeVar, Union
+from typing import Generic, Iterable, Optional, TypeVar, Union
 
 
 class QSystem(abc.ABC):
@@ -110,32 +110,3 @@ class QComposed(QSystem, Generic[S], Iterable[S]):
         name_str = f", name={self.name}" if self.name else ""
         components_str = ", ".join(repr(component) for component in self._components)
         return f"{type(self).__name__}([{components_str}]{name_str})"
-
-
-# allocation
-
-def allocate_particle(ndim: int, *, name: str | None = None) -> QParticle:
-    from braandket_circuit.traits.apply import get_current_runtime
-    return get_current_runtime().allocate_particle(ndim, name=name)
-
-
-def allocate_qubit(*, name: str | None = None) -> QParticle:
-    return allocate_particle(2, name=name)
-
-
-def allocate_qubits(n: int, *, name: str | Iterable[str] | Callable[[int], str] | None = None) -> QComposed:
-    if isinstance(name, str):
-        name_func = lambda i: f"{name}_{i}"
-    elif isinstance(name, Iterable):
-        names = tuple(nm for _, nm in zip(range(n), name))
-        name_func = lambda i: f"{names[i]}"
-        name = None
-    elif callable(name):
-        name_func = name
-        name = None
-    elif name is None:
-        name_func = lambda i: None
-    else:
-        raise TypeError(f"Unexpected type for name: {type(name)}")
-
-    return QComposed((allocate_qubit(name=name_func(i)) for i in range(n)), name=name)

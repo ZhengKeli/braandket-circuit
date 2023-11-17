@@ -3,7 +3,7 @@ import weakref
 from typing import Optional, Union
 
 from braandket import Backend, KetSpace, StateTensor, get_default_backend
-from braandket_circuit.basics import QParticle, QSystem, QSystemStruct
+from braandket_circuit.basics import QParticle, QSystemStruct
 from braandket_circuit.traits import QRuntime
 from braandket_circuit.utils import iter_struct
 
@@ -15,9 +15,6 @@ class BnkRuntime(QRuntime):
     @property
     def backend(self) -> Backend:
         return self._backend
-
-    def allocate_particle(self, ndim: int, *, name: str | None = None) -> QSystem:
-        return BnkParticle(self, KetSpace(ndim, name=name))
 
     def __enter__(self):
         self.backend.__enter__()
