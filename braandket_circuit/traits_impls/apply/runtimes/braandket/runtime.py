@@ -68,20 +68,33 @@ class BnkState:
 
 
 class BnkParticle(QParticle):
-    def __init__(self, space: KetSpace, state: Union[BnkState, StateTensor, None] = None):
+    def __init__(self, runtime: BnkRuntime, space: KetSpace, state: Union[BnkState, StateTensor, None] = None):
+        self._runtime = runtime
         self._space = space
         self._state: Optional[BnkState] = None
 
         if isinstance(state, BnkState):
+            if state.backend is not self.backend:
+                raise ValueError(f"The backend of given state does not match the of backend runtime!")
             if space not in state.tensor.spaces:
                 raise ValueError(f"Space {space} not included in the given state tensor!")
             state._register(self)
         elif isinstance(state, StateTensor):
+            if state.backend is not self.backend:
+                raise ValueError(f"The backend of given state does not match the of backend runtime!")
             if space not in state.spaces:
                 raise ValueError(f"Space {space} not included in the given state tensor!")
             BnkState(state, (self,))
         elif state is not None:
             raise TypeError(f"Expected BnkState or StateTensor, got {state}!")
+
+    @property
+    def runtime(self) -> BnkRuntime:
+        return self._runtime
+
+    @property
+    def backend(self) -> Backend:
+        return self.runtime.backend
 
     @property
     def space(self) -> KetSpace:
@@ -90,7 +103,7 @@ class BnkParticle(QParticle):
     @property
     def state(self) -> BnkState:
         if self._state is None:
-            BnkState(self.space.eigenstate(0), (self,))
+            BnkState(self.space.eigenstate(0, backend=self.backend), (self,))
         return self._state
 
     # system
