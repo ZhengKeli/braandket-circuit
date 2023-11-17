@@ -2,7 +2,7 @@ import importlib
 import weakref
 from typing import Optional, Union
 
-from braandket import Backend, KetSpace, PureStateTensor, StateTensor, get_default_backend
+from braandket import Backend, KetSpace, StateTensor, get_default_backend
 from braandket_circuit.basics import QParticle, QSystem, QSystemStruct
 from braandket_circuit.traits import QRuntime
 from braandket_circuit.utils import iter_struct
@@ -17,7 +17,7 @@ class BnkRuntime(QRuntime):
         return self._backend
 
     def allocate_particle(self, ndim: int, *, name: str | None = None) -> QSystem:
-        return BnkParticle(KetSpace(ndim, name=name))
+        return BnkParticle(self, KetSpace(ndim, name=name))
 
     def __enter__(self):
         self.backend.__enter__()
@@ -29,15 +29,23 @@ class BnkRuntime(QRuntime):
 
 
 class BnkState:
-    def __init__(self, tensor: StateTensor, systems: QSystemStruct = ()):
+    def __init__(self, runtime: BnkRuntime, tensor: StateTensor, systems: QSystemStruct = ()):
+        self._runtime = runtime
         self._tensor = tensor
         self._particles = weakref.WeakSet()
         self._register(*systems)
+
+        if tensor.backend is not self.backend:
+            raise ValueError(f"The backend of given state does not match the of backend runtime!")
 
     def _register(self, *systems: QSystemStruct):
         for particle in iter_struct(systems, atom_typ=BnkParticle):
             particle._state = self
             self._particles.add(particle)
+
+    @property
+    def runtime(self) -> BnkRuntime:
+        return self._runtime
 
     @property
     def tensor(self) -> StateTensor:
@@ -54,14 +62,16 @@ class BnkState:
     def __matmul__(self, other: 'BnkState') -> 'BnkState':
         if other is self:
             return self
+        if self.runtime is not other.runtime:
+            raise ValueError(f"The runtimes of two states are not matched!")
         new_tensor = self._tensor @ other._tensor
         new_particles = (*self._particles, *other._particles)
-        return BnkState(new_tensor, new_particles)
+        return BnkState(self.runtime, new_tensor, new_particles)
 
     @classmethod
     def prod(cls, *states: 'BnkState') -> 'BnkState':
         if len(states) == 0:
-            return BnkState(PureStateTensor.of((), ()))
+            raise ValueError("No states to compose!")
         if len(states) == 1:
             return states[0]
         return cls.prod(states[0] @ states[1], *states[2:])
@@ -74,17 +84,17 @@ class BnkParticle(QParticle):
         self._state: Optional[BnkState] = None
 
         if isinstance(state, BnkState):
-            if state.backend is not self.backend:
-                raise ValueError(f"The backend of given state does not match the of backend runtime!")
+            if state.runtime is not self.runtime:
+                raise ValueError(f"The runtime of given state does not match!")
             if space not in state.tensor.spaces:
                 raise ValueError(f"Space {space} not included in the given state tensor!")
             state._register(self)
         elif isinstance(state, StateTensor):
             if state.backend is not self.backend:
-                raise ValueError(f"The backend of given state does not match the of backend runtime!")
+                raise ValueError(f"The backend of given state does not match!")
             if space not in state.spaces:
                 raise ValueError(f"Space {space} not included in the given state tensor!")
-            BnkState(state, (self,))
+            BnkState(self.runtime, state, (self,))
         elif state is not None:
             raise TypeError(f"Expected BnkState or StateTensor, got {state}!")
 
@@ -103,7 +113,7 @@ class BnkParticle(QParticle):
     @property
     def state(self) -> BnkState:
         if self._state is None:
-            BnkState(self.space.eigenstate(0, backend=self.backend), (self,))
+            BnkState(self.runtime, self.space.eigenstate(0, backend=self.backend), (self,))
         return self._state
 
     # system
