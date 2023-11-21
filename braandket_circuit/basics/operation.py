@@ -13,10 +13,8 @@ IndexStruct = Union[int, Iterable['IndexStruct']]
 
 class QOperation(Generic[R], abc.ABC):
     def __init_subclass__(cls, **kwargs):
-        org_call = cls.__call__
-        if org_call != QOperation.__call__:
-            from braandket_circuit.traits import register_apply_impl
-            register_apply_impl(None, cls, lambda _, op, *args: org_call(op, *args))
+        if cls.__call__ != QOperation.__call__:
+            cls._custom_call = cls.__call__
             del cls.__call__
 
     def __init__(self, *, name: Optional[str] = None):
