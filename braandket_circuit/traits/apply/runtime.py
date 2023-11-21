@@ -2,14 +2,8 @@ import abc
 from contextvars import ContextVar
 from typing import Optional
 
-from braandket_circuit.basics import QOperation, QSystemStruct, R
-
 
 class QRuntime(abc.ABC):
-    def apply_operation(self, op: QOperation[R], *args: QSystemStruct) -> R:
-        from braandket_circuit.traits import apply
-        return apply(self, op, *args)
-
     def __enter__(self):
         token = _current_runtime_context_var.set(self)
         setattr(self, '_org_default_runtime_token_', token)
