@@ -1,5 +1,5 @@
 import importlib
-from typing import Optional
+from typing import Optional, overload
 
 from braandket_circuit.basics import QOperation, QParticle, QSystemStruct
 from braandket_circuit.operations import AllocateParticle, MeasurementResult
@@ -33,8 +33,25 @@ class SymbolicRuntime(QRuntime):
 
 
 class SymbolicParticle(QParticle):
+    @overload
+    def __init__(self, ndim: int, *, name: Optional[str] = None):
+        pass
+
+    @overload
     def __init__(self, call: SymbolicCall):
-        self._call = call
+        pass
+
+    def __init__(self, arg: int | SymbolicCall, *, name: Optional[str] = None):
+        if isinstance(arg, SymbolicCall):
+            op = arg.op
+            assert isinstance(op, AllocateParticle)
+            self._call = arg
+            self._ndim = op.ndim
+            self._name = op.name
+        else:
+            self._call = None
+            self._ndim = int(arg)
+            self._name = name
 
     @property
     def call(self):
@@ -42,15 +59,11 @@ class SymbolicParticle(QParticle):
 
     @property
     def name(self) -> Optional[str]:
-        op = self.call.op
-        assert isinstance(op, AllocateParticle)
-        return op.name
+        return self._name
 
     @property
     def ndim(self) -> int:
-        op = self.call.op
-        assert isinstance(op, AllocateParticle)
-        return op.ndim
+        return self._ndim
 
 
 class SymbolicMeasurementResult(MeasurementResult):
