@@ -1,7 +1,7 @@
 import inspect
 
 from braandket_circuit.basics import QOperation, QSystemStruct
-from braandket_circuit.operations import Sequential
+from braandket_circuit.operations import Remapped, RemappedByIndices, Sequential
 from braandket_circuit.traits import freeze, match_apply_impls, register_freeze_impl
 
 
@@ -59,4 +59,19 @@ def common_impl(op: QOperation, *args: QSystemStruct) -> QOperation:
 
 @register_freeze_impl(Sequential)
 def sequential_impl(op: Sequential, *args: QSystemStruct) -> Sequential:
+    return op
+
+
+@register_freeze_impl(Remapped)
+def remapped_impl(op: RemappedByIndices, *args: QSystemStruct) -> RemappedByIndices:
+    op = common_impl(op, *args)
+    assert isinstance(op, Sequential)
+    assert len(op) == 1
+    op = op[0]
+    assert isinstance(op, RemappedByIndices)
+    return op
+
+
+@register_freeze_impl(RemappedByIndices)
+def remapped_by_indices_impl(op: RemappedByIndices, *args: QSystemStruct) -> RemappedByIndices:
     return op
