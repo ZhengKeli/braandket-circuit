@@ -5,7 +5,7 @@ from .runtime import SymbolicCall, SymbolicMeasurementResult, SymbolicParticle, 
 
 
 @register_apply_impl(SymbolicRuntime, None)
-def common_apply_impl(rt: SymbolicRuntime, op: QOperation, *args: QSystemStruct):
+def common_impl(rt: SymbolicRuntime, op: QOperation, *args: QSystemStruct):
     call = SymbolicCall(op, *args)
     rt.record_call(call)
 
