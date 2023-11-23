@@ -1,3 +1,17 @@
+# v0.2.2
+
+Breaking changes:
+
+* deleted package variable `__version__`.
+* Changed the mechanism of the execution of `QOperation.__call__()`.
+  The override method in subclasses is saved as `_custom_call` and executed by `default_impl`.
+* Restricted the exposed API. Some unwanted APIs from subpackages are hidden.
+
+New Features:
+
+* Added `SymbolicRuntime` along with new trait `freeze`,
+  which can parse custom operations into frozen ones (like `Sequential` and `RemappedByIndices`).
+
 # v0.2.1
 
 Breaking changes:
