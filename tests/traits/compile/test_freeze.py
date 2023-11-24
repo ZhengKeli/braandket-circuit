@@ -1,5 +1,5 @@
-from braandket_circuit import CNOT, Controlled, H, QOperation, QParticle, RemappedByIndices, Sequential, X, apply, \
-    freeze
+from braandket_circuit import CNOT, Controlled, FreezePass, H, QOperation, QParticle, RemappedByIndices, Sequential, X, \
+    apply, compile
 
 
 class CustomGate(QOperation[None]):
@@ -11,7 +11,7 @@ class CustomGate(QOperation[None]):
 def test_freeze_custom_gate():
     print(apply)
     gate = CustomGate()
-    frozen = freeze(gate)
+    frozen = compile(FreezePass(), gate)
     assert isinstance(frozen, Sequential)
     assert len(frozen) == 2
     assert isinstance(frozen[0], RemappedByIndices)

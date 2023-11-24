@@ -1,8 +1,9 @@
 import inspect
 
 from braandket_circuit.basics import QOperation, QSystemStruct
-from braandket_circuit.operations import Remapped, RemappedByIndices, Sequential
-from braandket_circuit.traits import freeze, match_apply_impls, register_freeze_impl
+from braandket_circuit.operations import RemappedByIndices, Sequential
+from braandket_circuit.traits import compile, match_apply_impls, register_compile_impl
+from .freeze_pass import FreezePass
 
 
 def args_from_signature(op: QOperation) -> QSystemStruct:
@@ -21,13 +22,11 @@ def args_from_signature(op: QOperation) -> QSystemStruct:
     return [SymbolicParticle(2, name=arg_name) for arg_name in spec.args[1:]]
 
 
-@register_freeze_impl(QOperation)
-def common_impl(op: QOperation, *args: QSystemStruct) -> QOperation:
-    if len(args) == 0:
-        try:
-            args = args_from_signature(op)
-        except (AttributeError, TypeError):
-            pass
+@register_compile_impl(FreezePass, None)
+def common_impl(ps: FreezePass, op: QOperation) -> QOperation:
+    args = ps.args
+    if args is None:
+        args = args_from_signature(op)
 
     impls = match_apply_impls(None, op)
     if len(impls) == 0:
@@ -51,27 +50,17 @@ def common_impl(op: QOperation, *args: QSystemStruct) -> QOperation:
 
     steps = []
     for call in calls:
-        call_op = freeze(call.op, *call.args)
+        call_op = compile(FreezePass(call.args), call.op)
         args_index = [args.index(arg) for arg in call.args]
         steps.append(call_op.on(*args_index))
     return Sequential(steps, name=op.name)
 
 
-@register_freeze_impl(Sequential)
-def sequential_impl(op: Sequential, *args: QSystemStruct) -> Sequential:
+@register_compile_impl(FreezePass, Sequential)
+def sequential_impl(ps: FreezePass, op: Sequential, *args: QSystemStruct) -> Sequential:
     return op
 
 
-@register_freeze_impl(Remapped)
-def remapped_impl(op: RemappedByIndices, *args: QSystemStruct) -> RemappedByIndices:
-    op = common_impl(op, *args)
-    assert isinstance(op, Sequential)
-    assert len(op) == 1
-    op = op[0]
-    assert isinstance(op, RemappedByIndices)
-    return op
-
-
-@register_freeze_impl(RemappedByIndices)
-def remapped_by_indices_impl(op: RemappedByIndices, *args: QSystemStruct) -> RemappedByIndices:
+@register_compile_impl(FreezePass, RemappedByIndices)
+def remapped_by_indices_impl(ps: FreezePass, op: RemappedByIndices, *args: QSystemStruct) -> RemappedByIndices:
     return op
