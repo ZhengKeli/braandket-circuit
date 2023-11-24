@@ -67,7 +67,7 @@ def apply(rt: Rt, op: Op, *args: QSystemStruct) -> R:
     for impl in reversed(impls):
         try:
             return impl(rt, op, *args)
-        except Exception as err:
+        except NotImplementedError as err:
             impls_error.append(err)
     if not impls_error:
         raise NotImplementedError(f"No implementation for operation {op} on runtime {rt}.")
