@@ -1,4 +1,5 @@
-from braandket_circuit import CompilePass, QSystemStruct
+from braandket_circuit.basics import QSystemStruct
+from braandket_circuit.traits import CompilePass
 
 
 class FreezePass(CompilePass):
