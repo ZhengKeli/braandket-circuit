@@ -22,6 +22,10 @@ class Remapped(QOperation, Generic[Op], abc.ABC):
     def remap(self, *args: QSystemStruct) -> QSystemStruct:
         pass
 
+    @abc.abstractmethod
+    def spawn(self, op: Op) -> 'Remapped':
+        pass
+
     def __call__(self, *args: QSystemStruct) -> R:
         mapped_args = self.remap(*args)
         if isinstance(mapped_args, QParticle):
@@ -45,6 +49,9 @@ class RemappedByLambda(Remapped[Op]):
     def remap(self, *args: QSystemStruct) -> QSystemStruct:
         return self.func(*args)
 
+    def spawn(self, op: Op) -> 'RemappedByLambda':
+        return RemappedByLambda(op, self.func, name=self.name)
+
     def __repr__(self) -> str:
         return f"RemappedByLambda({self.op!r}, {self.func!r})"
 
@@ -60,6 +67,9 @@ class RemappedByIndices(Remapped[Op]):
 
     def remap(self, *args: QSystemStruct) -> QSystemStruct:
         return map_struct(lambda i: args[i], self._indices, atom_typ=int)
+
+    def spawn(self, op: Op) -> 'RemappedByIndices':
+        return RemappedByIndices(op, *self.indices, name=self.name)
 
     def __repr__(self) -> str:
         return f"RemappedByIndices({self.op!r}, {', '.join(map(repr, self._indices))})"
