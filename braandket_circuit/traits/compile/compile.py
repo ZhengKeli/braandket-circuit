@@ -1,9 +1,10 @@
 import traceback
 from typing import Any, Callable, TypeVar, overload
 
+from zkl_registries import ObjTagKey, SimpleRegistry, SupTypeTagKey
+
 from braandket_circuit.basics import QOperation
 from braandket_circuit.traits.utils import resolve_type_and_instance
-from zkl_registries import ObjTagKey, SimpleRegistry, SupTypeTagKey
 from .compile_pass import CompilePass
 
 Ps = TypeVar('Ps', bound=CompilePass)
@@ -70,10 +71,10 @@ def compile(ps: Ps, op: Op) -> QOperation:
         except Exception as err:
             impls_error.append(err)
     if not impls_error:
-        raise NotImplementedError(f"No freeze implementation for operation {op}.")
+        raise NotImplementedError(f"No implementation for compile pass {ps} and operation {op}.")
     elif len(impls_error) == 1:
         raise impls_error[0]
     else:
         for impl_error in impls_error:
             traceback.print_exception(impl_error)
-        raise NotImplementedError(f"Failed to freeze operation {op}.")
+        raise NotImplementedError(f"No viable implementation for compile pass {ps} and operation {op}.")
