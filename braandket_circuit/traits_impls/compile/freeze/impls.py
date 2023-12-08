@@ -19,7 +19,7 @@ def args_from_signature(op: QOperation) -> QSystemStruct:
         raise TypeError("kwonlyargs is not supported in compiling!")
 
     from braandket_circuit.traits_impls import SymbolicParticle
-    return [SymbolicParticle(2, name=arg_name) for arg_name in spec.args[1:]]
+    return tuple(SymbolicParticle(2, name=arg_name) for arg_name in spec.args[1:])
 
 
 @register_compile_impl(FreezePass, None)
