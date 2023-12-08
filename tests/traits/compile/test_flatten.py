@@ -1,4 +1,4 @@
-from braandket_circuit import FlattenPass, RemappedByIndices, Sequential, X, Y, compile
+from braandket_circuit import CNOT, FlattenPass, RemappedByIndices, Sequential, X, Y, compile
 
 
 def test_flatten_elementary_gate():
@@ -47,3 +47,11 @@ def test_flatten_nested_sequential():
         assert isinstance(step, RemappedByIndices)
         assert step.indices == (step_i,)
         assert step.op is X
+
+
+def test_flatten_nested_remapped():
+    circuit = CNOT.on(0, 1).on(2, 1, 0)
+    flattened = compile(FlattenPass(), circuit)
+    assert isinstance(flattened, RemappedByIndices)
+    assert flattened.indices == (2, 1)
+    assert flattened.op is CNOT
