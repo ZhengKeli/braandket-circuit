@@ -8,4 +8,5 @@ from .operations import AllocateParticle, C, CNOT, CX, CY, CZ, Controlled, DM, D
 from .traits import CompilePass, Conversion, QRuntime, apply, compile, convert, get_current_runtime, match_apply_impls, \
     match_compile_impls, match_convert_impls, register_apply_impl, register_compile_impl, register_convert_impl, \
     set_current_runtime
-from .traits_impls import BnkParticle, BnkRuntime, BnkState, FreezePass, SymbolicParticle, SymbolicRuntime, ToMatrix
+from .traits_impls import BnkParticle, BnkRuntime, BnkState, FlattenPass, FreezePass, SymbolicParticle, SymbolicRuntime, \
+    ToMatrix

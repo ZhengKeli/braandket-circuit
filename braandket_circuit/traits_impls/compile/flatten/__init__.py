@@ -1,7 +1,6 @@
 import importlib
 
-from .flatten import FlattenPass
-from .freeze import FreezePass
+from .flatten_pass import FlattenPass
 
 importlib.import_module(".impls", __package__)
 del importlib
