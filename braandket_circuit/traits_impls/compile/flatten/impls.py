@@ -52,6 +52,6 @@ def remapped_by_indices_impl(ps: FlattenPass, op: RemappedByIndices):
 def controlled_impl(ps: FlattenPass, op: Controlled):
     flattened_op_op = compile(ps, op.op)
     if isinstance(flattened_op_op, Sequential):
-        return Sequential([op.spawn(step) for step in flattened_op_op], name=op.name)
+        return Sequential([Controlled(step) for step in flattened_op_op], name=op.name)
     else:
         return op
