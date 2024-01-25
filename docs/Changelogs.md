@@ -1,3 +1,14 @@
+# v0.2.4
+
+New Features:
+
+* Added trait `Conversion` together with `ToMatrix`
+* Added `FlattenPass`
+
+Improvements:
+
+* Added examples about custom operations.
+
 # v0.2.3
 
 Breaking changes:
