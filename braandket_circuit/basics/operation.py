@@ -1,8 +1,6 @@
 import abc
-import warnings
-from typing import Callable, Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
+from typing import Generic, Iterable, Optional, ParamSpec, TypeVar, Union, overload
 
-from braandket_circuit.utils import map_struct
 from .system import QSystemStruct
 
 R = TypeVar('R')
@@ -36,61 +34,33 @@ class QOperation(Generic[R], abc.ABC):
 
     @overload
     def on(self,
-        target: Callable[QSystemSpec, QSystemStruct], *,
-        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
-    ) -> 'QOperation':
-        pass
-
-    @overload
-    def on(self,
-        *indices: IndexStruct,
-        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        *target: IndexStruct,
+        control: IndexStruct | None = None,
     ) -> 'QOperation':
         pass
 
     @overload
     def on(self, *,
-        target: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
-        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        target: IndexStruct,
+        control: IndexStruct | None = None,
     ) -> 'QOperation':
         pass
 
     def on(self,
-        *target_args: Callable[QSystemSpec, QSystemStruct] | IndexStruct,
-        target: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
-        control: Callable[QSystemSpec, QSystemStruct] | IndexStruct | None = None,
+        *target_args: IndexStruct,
+        target: IndexStruct | None = None,
+        control: IndexStruct | None = None,
     ) -> 'QOperation':
-        if target is not None:
-            target_is_lambda = isinstance(target, Callable)
-            if len(target_args) != 0:
-                warnings.warn("Ignored varargs when argument 'target' presents.")
-        else:
-            target_is_lambda = len(target_args) == 1 and isinstance(target_args[0], Callable)
-            if target_is_lambda:
-                target = target_args[0]
-            else:
-                target = target_args
+        if len(target_args) == 0 and target is None:
+            raise TypeError("No target specified.")
+        if len(target_args) != 0 and target is not None:
+            raise TypeError("Cannot specify 'target' both with varargs and kwargs.")
+        target = target_args if target is None else target
+        target = (target,) if not isinstance(target, Iterable) else target
 
+        from braandket_circuit import Remapped
         if control is None:
-            if target_is_lambda:
-                from braandket_circuit import RemappedByLambda
-                return RemappedByLambda(self, target)
-            else:
-                from braandket_circuit import RemappedByIndices
-                return RemappedByIndices(self, *target)
+            return Remapped(self, *target)
 
         from braandket_circuit import Controlled
-        controlled = Controlled(self)
-
-        control_is_lambda = callable(control)
-        if target_is_lambda or control_is_lambda:
-            if not target_is_lambda:
-                target = lambda *args: map_struct(lambda i: args[i], target, atom_typ=int)
-            if not control_is_lambda:
-                control = lambda *args: map_struct(lambda i: args[i], control, atom_typ=int)
-
-            from braandket_circuit import RemappedByLambda
-            return RemappedByLambda(controlled, lambda *args: (control(*args), target(*args)))
-        else:
-            from braandket_circuit import RemappedByIndices
-            return RemappedByIndices(controlled, control, target)
+        return Remapped(Controlled(self), control, target)

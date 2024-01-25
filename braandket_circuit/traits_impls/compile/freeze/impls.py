@@ -1,7 +1,7 @@
 import inspect
 
 from braandket_circuit.basics import QOperation, QSystemStruct
-from braandket_circuit.operations import RemappedByIndices, Sequential
+from braandket_circuit.operations import Remapped, Sequential
 from braandket_circuit.traits import compile, match_apply_impls, register_compile_impl
 from .freeze_pass import FreezePass
 
@@ -61,6 +61,6 @@ def sequential_impl(ps: FreezePass, op: Sequential, *args: QSystemStruct) -> Seq
     return op
 
 
-@register_compile_impl(FreezePass, RemappedByIndices)
-def remapped_by_indices_impl(ps: FreezePass, op: RemappedByIndices, *args: QSystemStruct) -> RemappedByIndices:
+@register_compile_impl(FreezePass, Remapped)
+def remapped_impl(ps: FreezePass, op: Remapped, *args: QSystemStruct) -> Remapped:
     return op
