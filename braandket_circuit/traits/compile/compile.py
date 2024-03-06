@@ -49,7 +49,7 @@ def register_compile_impl(
 
     ps_type, ps_inst = resolve_type_and_instance(ps, base_type=CompilePass)
     op_type, op_inst = resolve_type_and_instance(op, base_type=QOperation)
-    _registry.register(impl, {PsType: ps_type, PsInst: ps_inst, OpType: op_type, OpInst: op_inst})
+    _registry.register({PsType: ps_type, PsInst: ps_inst, OpType: op_type, OpInst: op_inst}, impl)
     return impl
 
 

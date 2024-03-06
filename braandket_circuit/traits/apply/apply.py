@@ -48,7 +48,7 @@ def register_apply_impl(
 
     rt_type, rt_inst = resolve_type_and_instance(rt, base_type=QRuntime)
     op_type, op_inst = resolve_type_and_instance(op, base_type=QOperation)
-    _registry.register(impl, {RtType: rt_type, RtInst: rt_inst, OpType: op_type, OpInst: op_inst})
+    _registry.register({RtType: rt_type, RtInst: rt_inst, OpType: op_type, OpInst: op_inst}, impl)
     return impl
 
 
