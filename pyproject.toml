@@ -1,19 +1,17 @@
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
-name = "braandket-circuit"
-version = "0.2.5"
-description = "A library for working with quantum circuits based on BraAndKet."
-authors = []
+[project]
+name = "zkl-quantum-circuit"
+version = "0.3.0-dev"
 readme = "README.md"
-packages = [{ include = "braandket_circuit" }]
+description = "A library for working with quantum circuits based on BraAndKet."
+authors = [{ name = "Keli Zheng", email = "zhengkeli2009@126.com" }]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-braandket = "^0.8.6.post1"
-zkl-registries = { git = "https://gitee.com/zhengkeli/zkl-pythonx-registries", tag = "v0.1.2" }
+requires-python = ">=3.10"
+dependencies = [
+    "braandket>=0.8.6.post1",
+    "zkl-registries@git+https://gitee.com/zhengkeli/zkl-pythonx-registries@v0.1.2"
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.3"
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
