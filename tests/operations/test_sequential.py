@@ -1,4 +1,4 @@
-from braandket_circuit import CNOT, DM, H, Sequential, allocate_qubits
+from zkl_quantum_circuit import CNOT, DM, H, Sequential, allocate_qubits
 
 
 def test_sequential_bell_pair():

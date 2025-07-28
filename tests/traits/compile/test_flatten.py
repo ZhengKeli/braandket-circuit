@@ -1,4 +1,4 @@
-from braandket_circuit import CNOT, FlattenPass, Remapped, Sequential, X, Y, compile
+from zkl_quantum_circuit import CNOT, FlattenPass, Remapped, Sequential, X, Y, compile
 
 
 def test_flatten_elementary_gate():

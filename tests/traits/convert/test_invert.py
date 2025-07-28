@@ -1,5 +1,5 @@
-from braandket_circuit import CNOT, Controlled, H, Remapped, Rx, Sequential, X, convert
-from braandket_circuit.traits_impls.convert.invert import Invert
+from zkl_quantum_circuit import CNOT, Controlled, H, Remapped, Rx, Sequential, X, convert
+from zkl_quantum_circuit.traits_impls.convert.invert import Invert
 
 
 def test_invert_sequential():

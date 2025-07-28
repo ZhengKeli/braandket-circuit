@@ -1,4 +1,4 @@
-from braandket_circuit import CompilePass, QOperation, Sequential, compile, register_compile_impl
+from zkl_quantum_circuit import CompilePass, QOperation, Sequential, compile, register_compile_impl
 
 
 class GateA(QOperation):

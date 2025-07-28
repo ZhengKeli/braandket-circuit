@@ -1,7 +1,7 @@
 import numpy as np
 
 from braandket import tensorflow_backend
-from braandket_circuit import BnkRuntime, DM, M, PureStatePreparation, allocate_qubit
+from zkl_quantum_circuit import BnkRuntime, DM, M, PureStatePreparation, allocate_qubit
 
 
 def test_prepare_0():

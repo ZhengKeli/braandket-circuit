@@ -1,4 +1,4 @@
-from braandket_circuit import AllocateParticle, CNOT, H, M, SymbolicRuntime, allocate_qubits
+from zkl_quantum_circuit import AllocateParticle, CNOT, H, M, SymbolicRuntime, allocate_qubits
 
 
 def test_symbolic_runtime():

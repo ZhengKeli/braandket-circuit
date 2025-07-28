@@ -1,4 +1,4 @@
-from braandket_circuit import CNOT, Controlled, FreezePass, H, QOperation, QParticle, Remapped, Sequential, X, \
+from zkl_quantum_circuit import CNOT, Controlled, FreezePass, H, QOperation, QParticle, Remapped, Sequential, X, \
     apply, compile
 
 

@@ -3,7 +3,7 @@ import math
 import tensorflow as tf
 
 from braandket import tensorflow_backend
-from braandket_circuit import BnkRuntime, CX, DM, H, M, Rx, X, allocate_qubit, allocate_qubits
+from zkl_quantum_circuit import BnkRuntime, CX, DM, H, M, Rx, X, allocate_qubit, allocate_qubits
 
 
 def test_measure_0():

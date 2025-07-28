@@ -1,6 +1,6 @@
 import pytest
 
-from braandket_circuit import QOperation, QParticle, allocate_qubit
+from zkl_quantum_circuit import QOperation, QParticle, allocate_qubit
 
 
 class CustomGate(QOperation):

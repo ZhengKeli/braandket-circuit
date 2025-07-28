@@ -1,7 +1,7 @@
 [project]
-name = "braandket-circuit"
-version = "0.2.6"
-description = "A library for working with quantum circuits based on BraAndKet."
+name = "zkl-quantum-circuit"
+version = "0.3.0-dev"
+description = "A library for working with quantum circuits."
 readme = "README.md"
 
 requires-python = ">=3.10"
