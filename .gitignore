@@ -1,5 +1,11 @@
 # python
-__pycache__/
+__pycache__
 
-# PyCharm
-.idea/
+# python venv
+/.venv
+
+# ide pycharm
+/.idea
+
+# ide vscode
+/.vscode
